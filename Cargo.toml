@@ -1,0 +1,28 @@
+[package]
+name = "flattie"
+version = "0.1.0"
+authors = ["Nash <me@aunyks.com>"]
+edition = "2021"
+
+[profile.release]
+# https://doc.rust-lang.org/cargo/reference/profiles.html#opt-level
+opt-level = 3
+
+[dependencies]
+# https://github.com/actix/actix-web
+actix-web = "3.3.2"
+
+# https://github.com/actix/actix-net
+actix-rt = "2.2.0"
+
+# https://github.com/actix/actix-web
+actix-files = "0.5.0"
+
+# https://github.com/rust-lang/log
+log = "0.4.14"
+
+# https://github.com/env-logger-rs/env_logger
+env_logger = "0.9.0"
+
+# https://github.com/djc/askama
+askama = "0.10.5"
