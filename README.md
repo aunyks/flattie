@@ -2,6 +2,26 @@
 
 Flattie is the fastest server boilerplate on the web. Use it when response time is of the essence. It should feel like Rails or Django, but Rusty and a tad less opinionated.
 
+## Configuration
+
+By default, Flattie uses environment variables to control how it behaves. The variables it understands are:
+
+```
+FLATTIE_LOG_LEVEL=flattie=trace
+```
+
+Default: `flattie=trace`
+
+This variable controls the server's logging verbosity. Verbosity values follow the levels defined by Rust's [log crate](https://docs.rs/log/0.4.6/log/#use). If you only want Flattie-specific logs, set the value to `flattie=my-log-level` (e.g. `FLATTIE_LOG_LEVEL=flattie=info`). If you're also okay with receiving Actix-specific logs, set the value to `my-log-level` without prefixing it with anything (e.g. `FLATTIE_LOG_LEVEL=debug`).
+
+```
+FLATTIE_BIND_ADDRESS=localhost:8080
+```
+
+Default: `localhost:8080`
+
+This variable controls the server's bind address. It's defined in `IP:PORT` format.
+
 ## Unit Tests
 
 To run unit tests:
