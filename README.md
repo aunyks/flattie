@@ -64,6 +64,6 @@ Note that you can set the optimization levels for release builds with the `opt-l
 
 ### Fun Fact
 
-Flattie spiders are known to have one of the fastest strikes on prey among all spiders. They're some of the fastest things on the literal web!
+Flattie spiders are known to have one of the fastest strikes on prey among all spiders. They have some of the fastest response times on the literal web!
 
 Copyright (C) 2021 Gerald Nash
