@@ -4,9 +4,39 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>flattie</title>
+    <title>Flattie Web Server</title>
+    <link rel="stylesheet" href="/static/css/pico.min.css">
   </head>
   <body>
-    flattie web server
+    <main class="container">
+      <hgroup>
+        <h1>Flattie Web Server</h1>
+        <h2>Fastest boilerplate on the web.</h2>
+      </hgroup>
+      <p>
+        Flattie is the fastest server boilerplate on the web. Use it when response time is of the essence. It should feel like Rails or Django, 
+        but Rusty and a tad less opinionated.
+      </p>
+      <p>
+        Flattie isn't a framework. It's "get started" code that's been pre-built for projects 
+        where response speed is important. Flattie's written in <a href="https://www.rust-lang.org">Rust</a>. It's built on top of 
+        the <a href="https://actix.rs">Actix Web Framework</a> and uses <a href="https://github.com/djc/askama">Askama</a> as its templating engine. 
+        For styling, it uses the <a href="https://picocss.com">Pico.css CSS framework</a> as a base and custom styles for further details. 
+      </p>
+      <p>
+        For further implementation, <a href="https://aunyks.com">I</a> recommend using <a href="https://developer.mozilla.org/en-US/docs/Web/Web_Components">Web Components</a> for frontend components 
+        for their lack of dependencies. For SQL queries, I recommend <a href="https://github.com/launchbadge/sqlx">SQLx</a>.
+      </p>
+    <footer>
+      <p>
+        Have any feedback or questions? File an issue on your favorite Git server provider.
+        <br/>
+        <a href="https://github.com/aunyks/flattie">GitHub</a>&nbsp;<a href="https://gitlab.com/aunyks/flattie">GitLab</a>
+      </p>
+      <p>
+        Copyright &copy; 2021 Gerald Nash
+      </p>
+    </footer>
+  </main>
   </body>
 </html>
