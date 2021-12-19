@@ -18,6 +18,20 @@ To build and run a development version of the server:
 cargo run
 ```
 
+## Local Development (Hot Reloading)
+
+In some cases, especially when editing frontend code, having the server reload once a file has changed can save lots of time. To do so with flattie, install `cargo-watch`. Note: this will install `cargo-watch` globally on your machine, not just for this project.
+
+```
+cargo install cargo-watch
+```
+
+Then, run the following command to start the server and have it automatically reload when _any_ file is changed.
+
+```
+cargo watch -x 'run'
+```
+
 ## Build for Release
 
 To build a release binary:
