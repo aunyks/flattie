@@ -3,7 +3,7 @@ use actix_web::{web, App, HttpServer};
 use env_logger::{Builder, Env};
 use log::trace;
 use std::env;
-mod marketing;
+mod routes;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -18,7 +18,7 @@ async fn main() -> std::io::Result<()> {
     trace!("Starting flattie server: http://{}", bind_address);
     HttpServer::new(|| {
         App::new()
-            .route("/", web::get().to(marketing::homepage))
+            .route("/", web::get().to(routes::marketing::homepage))
             .service(Files::new("/static", "./static"))
     })
     .bind(bind_address)?
