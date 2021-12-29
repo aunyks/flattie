@@ -27,6 +27,12 @@ env_logger = "0.9.0"
 # https://github.com/djc/askama
 askama = "0.10.5"
 
-# Not using lates because of this: https://github.com/launchbadge/sqlx/issues/1117#issuecomment-801237734
+# Not using latest because of this: https://github.com/launchbadge/sqlx/issues/1117#issuecomment-801237734, 
+# same with actix-rt
 # https://github.com/launchbadge/sqlx
 sqlx = { version = "0.4.2", features = ["runtime-actix-rustls", "any", "sqlite", "postgres", "mysql" ] }
+
+# Trait: https://github.com/RustCrypto/traits/tree/master/password-hash
+# Crate Family: https://github.com/RustCrypto/password-hashes
+# Docs: https://docs.rs/scrypt/latest/scrypt/
+scrypt = { version = "0.8.1" }

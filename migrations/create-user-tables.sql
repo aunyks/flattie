@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS Users
 (
     id       INTEGER NOT NULL,
     username TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
+    password TEXT,
     PRIMARY KEY(id)
 );
 
