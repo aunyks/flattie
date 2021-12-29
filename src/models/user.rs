@@ -36,8 +36,8 @@ impl User {
                     }
                 };
                 match sqlx::query("INSERT INTO Users (username, password) VALUES (?, ?)")
-                    .bind(username.as_str())
-                    .bind(hashed_password.clone())
+                    .bind(&username)
+                    .bind(&hashed_password)
                     .execute(&mut sql_connection)
                     .await
                 {
@@ -55,7 +55,7 @@ impl User {
             }
             None => {
                 match sqlx::query("INSERT INTO Users (username) VALUES (?)")
-                    .bind(username.as_str())
+                    .bind(&username)
                     .execute(&mut sql_connection)
                     .await
                 {
@@ -73,6 +73,10 @@ impl User {
             }
         }
     }
+
+    // pub async fn with_username(username: String, conn_pool: &AnyPool) -> Result<User, &str> {}
+
+    // pub async fn has_password(&self, conn_pool: &AnyPool) -> bool {}
 }
 
 #[cfg(test)]
@@ -162,6 +166,42 @@ mod tests {
     }
 
     #[actix_rt::test]
+    async fn test_user_create_no_password() {
+        // Get a pool to connect to an in-memory DB
+        let test_pool = create_test_sql_pool().await;
+        // Create our user table
+        create_user_tables(&test_pool).await;
+
+        // Create the user using the model
+        let new_user = match User::create(String::from("my_username"), None, &test_pool).await {
+            Ok(user) => user,
+            Err(msg) => panic!("{}", msg),
+        };
+        // Make sure the struct populates some stuff correctly
+        assert_eq!(new_user.username, String::from("my_username"));
+        assert_eq!(new_user.password, None);
+
+        // Make sure we can get the values again
+        let mut connection = get_sql_connection(&test_pool).await;
+        let rows = match sqlx::query("SELECT * FROM Users")
+            .fetch_all(&mut connection)
+            .await
+        {
+            Ok(raw_row) => raw_row,
+            Err(_) => {
+                panic!("Couldn't get rows during SELECT");
+            }
+        };
+        assert_eq!(rows.len(), 1);
+        let first_row = &rows[0];
+        let first_username = first_row.get::<String, _>("username");
+        let first_password = first_row.get::<Option<String>, _>("password");
+        assert_eq!(first_username, String::from("my_username"));
+        // And make sure there's no password
+        assert_eq!(first_password, None);
+    }
+
+    #[actix_rt::test]
     async fn test_user_create_with_password() {
         // Get a pool to connect to an in-memory DB
         let test_pool = create_test_sql_pool().await;
@@ -247,41 +287,5 @@ mod tests {
             }
             Err(_) => {}
         };
-    }
-
-    #[actix_rt::test]
-    async fn test_user_create_no_password() {
-        // Get a pool to connect to an in-memory DB
-        let test_pool = create_test_sql_pool().await;
-        // Create our user table
-        create_user_tables(&test_pool).await;
-
-        // Create the user using the model
-        let new_user = match User::create(String::from("my_username"), None, &test_pool).await {
-            Ok(user) => user,
-            Err(msg) => panic!("{}", msg),
-        };
-        // Make sure the struct populates some stuff correctly
-        assert_eq!(new_user.username, String::from("my_username"));
-        assert_eq!(new_user.password, None);
-
-        // Make sure we can get the values again
-        let mut connection = get_sql_connection(&test_pool).await;
-        let rows = match sqlx::query("SELECT * FROM Users")
-            .fetch_all(&mut connection)
-            .await
-        {
-            Ok(raw_row) => raw_row,
-            Err(_) => {
-                panic!("Couldn't get rows during SELECT");
-            }
-        };
-        assert_eq!(rows.len(), 1);
-        let first_row = &rows[0];
-        let first_username = first_row.get::<String, _>("username");
-        let first_password = first_row.get::<Option<String>, _>("password");
-        assert_eq!(first_username, String::from("my_username"));
-        // And make sure there's no password
-        assert_eq!(first_password, None);
     }
 }
