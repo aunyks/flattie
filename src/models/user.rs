@@ -1,6 +1,10 @@
+use base64::{encode_config, CharacterSet, Config};
 use log::{debug, error, trace, warn};
+use rand::{rngs::OsRng, RngCore};
 use scrypt::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+    password_hash::{
+        rand_core::OsRng as ScryptOsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
+    },
     Scrypt,
 };
 use sqlx::{AnyPool, Row};
@@ -30,7 +34,7 @@ impl User {
         };
         match plaintext_password {
             Some(plaintext_pass) => {
-                let salt = SaltString::generate(&mut OsRng);
+                let salt = SaltString::generate(&mut ScryptOsRng);
                 // Password string format:
                 // https://github.com/P-H-C/phc-string-format/blob/5f1e4ec633845d43776849f503f8ce8314b5290c/phc-sf-spec.md
                 let hashed_password = match Scrypt.hash_password(plaintext_pass.as_bytes(), &salt) {
@@ -620,6 +624,12 @@ impl User {
             }
         };
         Ok(())
+    }
+
+    pub fn generate_login_token() -> String {
+        let mut token_bytes = [0u8; 16];
+        OsRng.fill_bytes(&mut token_bytes);
+        encode_config(token_bytes, Config::new(CharacterSet::UrlSafe, false))
     }
 }
 
@@ -1329,5 +1339,18 @@ mod tests {
             Ok(_) => panic!("User was incorrectly found with Ethereum address!"),
             Err(_) => {}
         };
+    }
+
+    #[test]
+    fn generate_login_token() {
+        let login_token1 = User::generate_login_token();
+        assert_eq!(login_token1.len(), 22);
+
+        let login_token2 = User::generate_login_token();
+        assert_eq!(login_token2.len(), 22);
+
+        // Make sure they're not equal (should be
+        // effectively guaranteed) by the OsRng
+        assert_ne!(login_token1, login_token2);
     }
 }

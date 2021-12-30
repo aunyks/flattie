@@ -34,6 +34,12 @@ sqlx = { version = "0.4.2", features = ["runtime-actix-rustls", "any", "sqlite",
 # Docs: https://docs.rs/scrypt/latest/scrypt/
 scrypt = { version = "0.8.1" }
 
+# https://github.com/rust-random/rand
+rand = "0.8.4"
+
+# https://github.com/marshallpierce/rust-base64
+base64 = "0.13.0"
+
 [dev-dependencies]
 # https://github.com/actix/actix-net
 actix-rt = "1.1.1"
