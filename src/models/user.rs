@@ -626,7 +626,36 @@ impl User {
         Ok(())
     }
 
+    pub async fn purge_login_tokens(&self, conn_pool: &AnyPool) -> Result<(), &str> {
+        trace!("User.purge_login_tokens(): Invoked");
+        let mut sql_connection = match conn_pool.acquire().await {
+            Ok(conn) => conn,
+            Err(err) => {
+                error!(
+                    "Could not acquire SQL connection from pool! {}",
+                    err.to_string()
+                );
+                return Err("Could not acquire SQL connection from pool!");
+            }
+        };
+        match sqlx::query(
+            "DELETE FROM LoginTokens WHERE user_id = (SELECT id FROM Users WHERE username = ?)",
+        )
+        .bind(&self.username)
+        .execute(&mut sql_connection)
+        .await
+        {
+            Ok(raw_row) => raw_row,
+            Err(err) => {
+                error!("Login token purge SQL query failed! {}", err.to_string());
+                return Err("Login token purge SQL query failed!");
+            }
+        };
+        Ok(())
+    }
+
     pub fn generate_login_token() -> String {
+        trace!("User::generate_login_token(): Invoked");
         let mut token_bytes = [0u8; 16];
         OsRng.fill_bytes(&mut token_bytes);
         encode_config(token_bytes, Config::new(CharacterSet::UrlSafe, false))
@@ -1336,7 +1365,43 @@ mod tests {
             .await;
         // If we try to get the user with the login token, there should be an error
         match User::with_login_token(String::from("asdfasdf"), &test_pool).await {
-            Ok(_) => panic!("User was incorrectly found with Ethereum address!"),
+            Ok(_) => panic!("User was incorrectly found with login token!"),
+            Err(_) => {}
+        };
+    }
+
+    #[allow(unused_must_use)]
+    #[actix_rt::test]
+    async fn purge_login_tokens() {
+        // Get a pool to connect to an in-memory DB
+        let test_pool = create_test_sql_pool().await;
+        // Create our user table
+        create_user_tables(&test_pool).await;
+
+        // Create the user using the model
+        let user = match User::create(
+            String::from("my_username"),
+            Some(String::from("hunter2")),
+            &test_pool,
+        )
+        .await
+        {
+            Ok(user) => user,
+            Err(msg) => panic!("{}", msg),
+        };
+        // Add some login tokens to be deleted later
+        user.add_login_token(String::from("asdfasdf"), &test_pool)
+            .await;
+        user.add_login_token(String::from(";lkj;lkj"), &test_pool)
+            .await;
+        user.purge_login_tokens(&test_pool).await;
+        // If we try to get the user with either of the login tokens, there should be an error
+        match User::with_login_token(String::from("asdfasdf"), &test_pool).await {
+            Ok(_) => panic!("User was incorrectly found with login token!"),
+            Err(_) => {}
+        };
+        match User::with_login_token(String::from(";lkj;lkj"), &test_pool).await {
+            Ok(_) => panic!("User was incorrectly found with login token!"),
             Err(_) => {}
         };
     }

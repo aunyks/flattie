@@ -22,6 +22,14 @@ Default: `localhost:8080`
 
 This variable controls the server's bind address. It's defined in `IP:PORT` format.
 
+```
+FLATTIE_SQL_CONNECTION_STRING=mysql://...
+```
+
+Default: **N/A**. Execution will fail of this variable isn't present.
+
+This variable determines which SQL database the server will connect to for database operations. At the moment, only SQLite and MySQL are supported, but other flavors can be supported by adding their respective `sqlx` features to this project's `Cargo.toml` ([Read more](https://github.com/launchbadge/sqlx)).
+
 ## Unit Tests
 
 To run unit tests:
