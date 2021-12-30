@@ -1,4 +1,4 @@
-# /routes
+# /src/routes
 
 The module for request handlers. It's recommended that handlers are grouped into files or submodules corresponding to their use or category.
 
