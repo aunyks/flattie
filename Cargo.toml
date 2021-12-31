@@ -40,6 +40,9 @@ rand = "0.8.4"
 # https://github.com/marshallpierce/rust-base64
 base64 = "0.13.0"
 
+# https://github.com/lettre/lettre
+lettre = { version = "0.10.0-rc.4", features = ["rustls-tls"] }
+
 [dev-dependencies]
 # https://github.com/actix/actix-net
 actix-rt = "1.1.1"

@@ -1418,4 +1418,43 @@ mod tests {
         // effectively guaranteed) by the OsRng
         assert_ne!(login_token1, login_token2);
     }
+
+    // use lettre::{
+    //     transport::smtp::{
+    //         authentication::{Credentials, Mechanism},
+    //         PoolConfig,
+    //     },
+    //     Message, SmtpTransport, Transport,
+    // };
+
+    // #[test]
+    // fn email_sending() {
+    //     let email_message = Message::builder()
+    //         .from("Somebody <somebody@domain.tld>".parse().unwrap())
+    //         .reply_to("Nobody <nobody@domain.tld>".parse().unwrap())
+    //         .to("Gerald Nash <me@aunyks.com>".parse().unwrap())
+    //         .subject("Happy new year!")
+    //         .body(String::from("Wishing you a prosperous 2022."))
+    //         .unwrap();
+
+    //     let smtp_login_credentials = Credentials::new(
+    //         String::from("<SMTP_USERNAME>"),
+    //         String::from("<SMTP_PASSWORD>"),
+    //     );
+
+    //     // TLS Connection on port 587
+    //     // https://github.com/lettre/lettre/blob/dc9c5df210f815a249caf54fe2b26648b9dcea34/src/transport/smtp/mod.rs#L71
+    //     let smtp_transport = SmtpTransport::starttls_relay("smtp.sendgrid.net")
+    //         .unwrap()
+    //         .authentication(vec![Mechanism::Login])
+    //         .credentials(smtp_login_credentials)
+    //         .pool_config(PoolConfig::new().max_size(5))
+    //         .build();
+
+    //     // Send the email
+    //     match smtp_transport.send(&email_message) {
+    //         Ok(_) => println!("Email sent successfully!"),
+    //         Err(e) => panic!("Could not send email: {:?}", e),
+    //     }
+    // }
 }
