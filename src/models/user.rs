@@ -861,18 +861,13 @@ mod tests {
         };
         // Attempt create another user with the same username. If this
         // succeeds, there's an issue with the implementation
-        match User::create(
+        assert!(User::create(
             String::from("my_username"),
             Some(String::from("mypassword123")),
             &test_pool,
         )
         .await
-        {
-            Ok(_) => {
-                panic!("User::create allowed duplicate username insert!");
-            }
-            Err(_) => {}
-        };
+        .is_err());
     }
 
     #[actix_rt::test]
@@ -900,7 +895,6 @@ mod tests {
                 Err(msg) => panic!("{}", msg),
             };
         // Make sure we get the same data back
-        assert_eq!(new_user, user_with_username);
         assert_eq!(new_user, user_with_username);
     }
 
@@ -966,11 +960,10 @@ mod tests {
             };
         assert_eq!(user, recovered_user2);
         // Make sure that no user is retrieved from a non-existent email
-        assert_eq!(
+        assert!(
             User::with_email(String::from("some-random-email"), &test_pool)
                 .await
-                .is_ok(),
-            false
+                .is_err()
         );
     }
 
@@ -1008,10 +1001,11 @@ mod tests {
         // If all three functions work properly, we have the same user
         assert_eq!(user, recovered_user);
         // If we try to get the user with the previous email, there should be an error
-        match User::with_email(String::from("test@example.com"), &test_pool).await {
-            Ok(_) => panic!("User was incorrectly found with email!"),
-            Err(_) => {}
-        };
+        assert!(
+            User::with_email(String::from("test@example.com"), &test_pool)
+                .await
+                .is_err()
+        );
     }
 
     #[allow(unused_must_use)]
@@ -1040,10 +1034,11 @@ mod tests {
         user.delete_email(String::from("test@example.com"), &test_pool)
             .await;
         // If we try to get the user with the email, there should be an error
-        match User::with_email(String::from("test@example.com"), &test_pool).await {
-            Ok(_) => panic!("User was incorrectly found with email!"),
-            Err(_) => {}
-        };
+        assert!(
+            User::with_email(String::from("test@example.com"), &test_pool)
+                .await
+                .is_err()
+        );
     }
 
     #[allow(unused_must_use)]
@@ -1137,11 +1132,10 @@ mod tests {
         };
         assert_eq!(user, recovered_user2);
         // Make sure that no user is retrieved from a non-existent address
-        assert_eq!(
+        assert!(
             User::with_eth_address(String::from("some-random-address"), &test_pool,)
                 .await
-                .is_ok(),
-            false
+                .is_err()
         );
     }
 
@@ -1190,15 +1184,12 @@ mod tests {
         // If all three functions work properly, we have the same user
         assert_eq!(user, recovered_user);
         // If we try to get the user with the previous ETH address, there should be an error
-        match User::with_eth_address(
+        assert!(User::with_eth_address(
             String::from("0x2125E5963f17643461bE3067bA75c62dAC9f3D4A"),
             &test_pool,
         )
         .await
-        {
-            Ok(_) => panic!("User was incorrectly found with Ethereum address!"),
-            Err(_) => {}
-        };
+        .is_err());
     }
 
     #[allow(unused_must_use)]
@@ -1234,15 +1225,12 @@ mod tests {
         )
         .await;
         // If we try to get the user with the ETH address, there should be an error
-        match User::with_eth_address(
+        assert!(User::with_eth_address(
             String::from("0x2125E5963f17643461bE3067bA75c62dAC9f3D4A"),
             &test_pool,
         )
         .await
-        {
-            Ok(_) => panic!("User was incorrectly found with Ethereum address!"),
-            Err(_) => {}
-        };
+        .is_err());
     }
 
     #[allow(unused_must_use)]
@@ -1330,11 +1318,10 @@ mod tests {
             };
         assert_eq!(user, recovered_user2);
         // Make sure that no user is retrieved from a non-existent token
-        assert_eq!(
+        assert!(
             User::with_login_token(String::from("some-random-token"), &test_pool)
                 .await
-                .is_ok(),
-            false
+                .is_err()
         );
     }
 
@@ -1364,10 +1351,9 @@ mod tests {
         user.delete_login_token(String::from("asdfasdf"), &test_pool)
             .await;
         // If we try to get the user with the login token, there should be an error
-        match User::with_login_token(String::from("asdfasdf"), &test_pool).await {
-            Ok(_) => panic!("User was incorrectly found with login token!"),
-            Err(_) => {}
-        };
+        assert!(User::with_login_token(String::from("asdfasdf"), &test_pool)
+            .await
+            .is_err());
     }
 
     #[allow(unused_must_use)]
@@ -1396,14 +1382,12 @@ mod tests {
             .await;
         user.purge_login_tokens(&test_pool).await;
         // If we try to get the user with either of the login tokens, there should be an error
-        match User::with_login_token(String::from("asdfasdf"), &test_pool).await {
-            Ok(_) => panic!("User was incorrectly found with login token!"),
-            Err(_) => {}
-        };
-        match User::with_login_token(String::from(";lkj;lkj"), &test_pool).await {
-            Ok(_) => panic!("User was incorrectly found with login token!"),
-            Err(_) => {}
-        };
+        assert!(User::with_login_token(String::from("asdfasdf"), &test_pool)
+            .await
+            .is_err());
+        assert!(User::with_login_token(String::from(";lkj;lkj"), &test_pool)
+            .await
+            .is_err());
     }
 
     #[test]
