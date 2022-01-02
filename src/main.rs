@@ -17,12 +17,10 @@ async fn main() -> std::io::Result<()> {
         Err(_) => String::from("localhost:8080"),
     };
 
-    let db_connection_url = match env::var("FLATTIE_SQL_CONNECTION_STRING") {
+    let db_connection_url = match env::var("FLATTIE_SQL_CONNECTION_URL") {
         Ok(conn_url) => conn_url,
         Err(_) => {
-            error!(
-                "SQL Connection URL (FLATTIE_SQL_CONNECTION_STRING) is required but not provided!"
-            );
+            error!("SQL Connection URL (FLATTIE_SQL_CONNECTION_URL) is required but not provided!");
             exit(1)
         }
     };
