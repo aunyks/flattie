@@ -994,6 +994,7 @@ mod tests {
         assert_eq!(user.has_password(String::from("hunter2")), false);
         assert_eq!(user.has_password(String::from("password123")), true);
         assert_ne!(original_hashed_password, new_hashed_password);
+        assert_ne!(String::from("password123"), new_hashed_password);
     }
 
     #[allow(unused_must_use)]
