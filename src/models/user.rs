@@ -138,6 +138,49 @@ impl User {
             .is_ok()
     }
 
+    pub async fn update_password(
+        &mut self,
+        plaintext_password: String,
+        conn_pool: &AnyPool,
+    ) -> Result<(), &str> {
+        trace!("User.update_password(): Invoked");
+        let mut sql_connection = match conn_pool.acquire().await {
+            Ok(conn) => conn,
+            Err(err) => {
+                error!(
+                    "Could not acquire SQL connection from pool! {}",
+                    err.to_string()
+                );
+                return Err("Could not acquire SQL connection from pool!");
+            }
+        };
+        let salt = SaltString::generate(&mut ScryptOsRng);
+        // Password string format:
+        // https://github.com/P-H-C/phc-string-format/blob/5f1e4ec633845d43776849f503f8ce8314b5290c/phc-sf-spec.md
+        let hashed_password = match Scrypt.hash_password(plaintext_password.as_bytes(), &salt) {
+            Ok(hashed_pass) => hashed_pass.to_string(),
+            Err(err) => {
+                error!("Could not hash password! {}", err.to_string());
+                return Err("Could not hash password!");
+            }
+        };
+        match sqlx::query("UPDATE Users SET password = ? WHERE username = ?")
+            .bind(&hashed_password)
+            .bind(&self.username)
+            .execute(&mut sql_connection)
+            .await
+        {
+            Ok(_) => {
+                self.password = Some(hashed_password);
+            }
+            Err(err) => {
+                error!("Password update SQL query failed! {}", err.to_string());
+                return Err("Password update SQL query failed!");
+            }
+        };
+        Ok(())
+    }
+
     pub async fn add_email(
         &self,
         email: String,
@@ -918,6 +961,39 @@ mod tests {
         };
         assert!(user.has_password(String::from("hunter2")));
         assert_eq!(user.has_password(String::from("password123")), false);
+    }
+
+    #[allow(unused_must_use)]
+    #[actix_rt::test]
+    async fn update_password() {
+        // Get a pool to connect to an in-memory DB
+        let test_pool = create_test_sql_pool().await;
+        // Create our user table
+        create_user_tables(&test_pool).await;
+
+        // Create the user using the model
+        // user is mut here because update_password
+        // updates the password _within the struct_
+        // in addition to that within the database
+        let mut user = match User::create(
+            String::from("my_username"),
+            Some(String::from("hunter2")),
+            &test_pool,
+        )
+        .await
+        {
+            Ok(user) => user,
+            Err(msg) => panic!("{}", msg),
+        };
+        let original_hashed_password = user.password.clone().unwrap();
+        // Update password
+        user.update_password(String::from("password123"), &test_pool)
+            .await;
+        let new_hashed_password = user.password.clone().unwrap();
+
+        assert_eq!(user.has_password(String::from("hunter2")), false);
+        assert_eq!(user.has_password(String::from("password123")), true);
+        assert_ne!(original_hashed_password, new_hashed_password);
     }
 
     #[allow(unused_must_use)]
