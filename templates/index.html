@@ -6,6 +6,7 @@
     <title>Flattie Web Server</title>
     <link rel="stylesheet" href="/static/css/pico.min.css">
     <link rel="stylesheet" href="/static/css/flattie.css">
+    <script type="javascript" src="/static/js/components/modal.js"></script>
   </head>
   <body>
     <main class="container">
@@ -27,6 +28,11 @@
         For further implementation, <a href="https://aunyks.com">I</a> recommend using <a href="https://developer.mozilla.org/en-US/docs/Web/Web_Components">Web Components</a> for frontend components 
         for their lack of dependencies. For SQL queries, I recommend <a href="https://github.com/launchbadge/sqlx">SQLx</a>.
       </p>
+      <button class="contrast"
+  data-target="modal-example"
+  onClick="toggleModal(event)">
+  Launch demo modal
+</button>
     <footer>
       <p>
         Have any feedback or questions? File an issue on your favorite Git server provider.
@@ -38,5 +44,38 @@
       </p>
     </footer>
   </main>
+      <!-- Modal -->
+<dialog id="modal-example">
+  <article>
+    <a href="#close"
+      aria-label="Close"
+      class="close"
+      data-target="modal-example"
+      onClick="toggleModal(event)">
+    </a>
+    <h3>Confirm your action!</h3>
+    <p>
+      Cras sit amet maximus risus. 
+      Pellentesque sodales odio sit amet augue finibus pellentesque. 
+      Nullam finibus risus non semper euismod.
+    </p>
+    <footer>
+      <a href="#cancel"
+        role="button"
+        class="secondary"
+        data-target="modal-example"
+        onClick="toggleModal(event)">
+        Cancel
+      </a>
+      <a href="#confirm"
+        role="button"
+        data-target="modal-example"
+        onClick="toggleModal(event)">
+        Confirm
+      </a>
+    </footer>
+  </article>
+</dialog>
+  <script src="/static/js/components/modal.js"></script>
   </body>
 </html>
