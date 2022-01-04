@@ -2,15 +2,17 @@
   Use this file to override pico defaults.
 */
 
+:root {
+  --modal-overlay-background-color: rgba(0, 0, 0, 0.65);
+}
+
 :root:not([data-theme='dark']) {
   --primary: #5d44f8;
-  --modal-overlay-background-color: rgba(0, 0, 0, 0.25);
 }
 
 @media only screen and (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --primary: #fab700;
-    --modal-overlay-background-color: rgba(0, 0, 0, 0.25);
   }
 }
 
@@ -52,10 +54,12 @@ aria-accessible but visually hidden. Ex:
 @keyframes slideUp {
   from {
     transform: translateY(10px);
+    -webkit-transform: translateY(10px);
     opacity: 0;
   }
   to {
     transform: translateY(0);
+    -webkit-transform: translateY(00px);
     opacity: 1;
   }
 }
