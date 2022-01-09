@@ -116,7 +116,7 @@ impl User {
 
     pub fn has_password(&self, possible_password: String) -> bool {
         trace!("User.has_password(): Invoked");
-        let this_password = match self.password.clone() {
+        let this_password = match &self.password {
             Some(pass) => pass,
             None => {
                 debug!("User.has_password(): User does not have a password");
