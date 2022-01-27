@@ -1,7 +1,7 @@
 use actix_files::Files;
 use actix_web::{web, App, HttpServer};
 use env_logger::{Builder, Env};
-use log::{error, info};
+use log::{error, info, warn};
 use sqlx::any::AnyPoolOptions;
 use std::{env, process::exit};
 mod models;
@@ -20,8 +20,8 @@ async fn main() -> std::io::Result<()> {
     let db_connection_url = match env::var("FLATTIE_SQL_CONNECTION_URL") {
         Ok(conn_url) => conn_url,
         Err(_) => {
-            error!("SQL Connection URL (FLATTIE_SQL_CONNECTION_URL) is required but not provided!");
-            exit(1)
+            warn!("No SQL connection URL provided! Using in-memory SQLite DB.");
+            String::from("sqlite::memory:")
         }
     };
 
