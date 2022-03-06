@@ -1,0 +1,5 @@
+migrations/
+target/
+.git
+**/README.md
+Dockerfile
