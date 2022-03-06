@@ -1,12 +1,12 @@
+use argon2::{
+    password_hash::{
+        rand_core::OsRng as Argon2OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
+    },
+    Argon2,
+};
 use base64::{encode_config, CharacterSet, Config};
 use log::{debug, error, trace, warn};
 use rand::{rngs::OsRng, RngCore};
-use scrypt::{
-    password_hash::{
-        rand_core::OsRng as ScryptOsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
-    },
-    Scrypt,
-};
 use sqlx::{AnyPool, Row};
 
 #[derive(PartialEq, Eq, Debug)]
@@ -34,16 +34,17 @@ impl User {
         };
         match plaintext_password {
             Some(plaintext_pass) => {
-                let salt = SaltString::generate(&mut ScryptOsRng);
+                let salt = SaltString::generate(&mut Argon2OsRng);
                 // Password string format:
                 // https://github.com/P-H-C/phc-string-format/blob/5f1e4ec633845d43776849f503f8ce8314b5290c/phc-sf-spec.md
-                let hashed_password = match Scrypt.hash_password(plaintext_pass.as_bytes(), &salt) {
-                    Ok(hashed_pass) => hashed_pass.to_string(),
-                    Err(err) => {
-                        error!("Could not hash password! {}", err.to_string());
-                        return Err("Could not hash password!");
-                    }
-                };
+                let hashed_password =
+                    match Argon2::default().hash_password(plaintext_pass.as_bytes(), &salt) {
+                        Ok(hashed_pass) => hashed_pass.to_string(),
+                        Err(err) => {
+                            error!("Could not hash password! {}", err.to_string());
+                            return Err("Could not hash password!");
+                        }
+                    };
                 match sqlx::query("INSERT INTO Users (username, password) VALUES (?, ?)")
                     .bind(&username)
                     .bind(&hashed_password)
@@ -133,7 +134,7 @@ impl User {
                 return false;
             }
         };
-        Scrypt
+        Argon2::default()
             .verify_password(possible_password.as_bytes(), &hashed_password)
             .is_ok()
     }
@@ -154,16 +155,17 @@ impl User {
                 return Err("Could not acquire SQL connection from pool!");
             }
         };
-        let salt = SaltString::generate(&mut ScryptOsRng);
+        let salt = SaltString::generate(&mut Argon2OsRng);
         // Password string format:
         // https://github.com/P-H-C/phc-string-format/blob/5f1e4ec633845d43776849f503f8ce8314b5290c/phc-sf-spec.md
-        let hashed_password = match Scrypt.hash_password(plaintext_password.as_bytes(), &salt) {
-            Ok(hashed_pass) => hashed_pass.to_string(),
-            Err(err) => {
-                error!("Could not hash password! {}", err.to_string());
-                return Err("Could not hash password!");
-            }
-        };
+        let hashed_password =
+            match Argon2::default().hash_password(plaintext_password.as_bytes(), &salt) {
+                Ok(hashed_pass) => hashed_pass.to_string(),
+                Err(err) => {
+                    error!("Could not hash password! {}", err.to_string());
+                    return Err("Could not hash password!");
+                }
+            };
         match sqlx::query("UPDATE Users SET password = ? WHERE username = ?")
             .bind(&hashed_password)
             .bind(&self.username)
@@ -878,7 +880,7 @@ mod tests {
                 panic!("Could not recover hashed passsword from SQL DB!");
             }
         };
-        assert!(Scrypt
+        assert!(Argon2::default()
             .verify_password(String::from("hunter2").as_bytes(), &hashed_password)
             .is_ok());
     }

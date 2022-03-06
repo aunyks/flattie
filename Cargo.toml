@@ -31,8 +31,8 @@ sqlx = { version = "0.4.2", features = ["runtime-actix-rustls", "any", "sqlite",
 
 # Trait: https://github.com/RustCrypto/traits/tree/master/password-hash
 # Crate Family: https://github.com/RustCrypto/password-hashes
-# Docs: https://docs.rs/scrypt/latest/scrypt/
-scrypt = { version = "0.8.1" }
+# Docs: https://docs.rs/argon2/0.3.4/argon2/index.html
+argon2 = { version = "0.3.4" }
 
 # https://github.com/rust-random/rand
 rand = "0.8.4"
