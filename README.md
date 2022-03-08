@@ -70,6 +70,40 @@ cargo build --release
 
 Note that you can set the optimization levels for release builds with the `opt-level` value in `Cargo.toml`. More details can be found in [the Cargo reference](https://doc.rust-lang.org/cargo/reference/profiles.html#opt-level).
 
+## Docker
+
+For enhanced portability and consistency, you can build this project into a Docker image using the `Dockerfile`.
+
+To build the flattie image with default configuration, run:
+
+```
+docker build -t flattie .
+```
+
+To run it with default configuration, run:
+
+```
+docker run -p 8080:8080 --rm flattie
+```
+
+You can configure flattie at build _or_ run time.
+
+**Build Time Config**
+To configure flattie at build time, specify environment variables as build arguments prefixed with `ENV_`. For example, if you'd like to set the log level at build time you can run:
+
+```
+docker build -t flattie . --build-arg ENV_FLATTIE_LOG_LEVEL=flattie=trace
+```
+
+You can then run the container normally, as the environment variables will already be configured.
+
+**Run Time Config**
+To configure flattie at run time, specify environment variables as normal. For example, if you'd like to set the log level at run time you can run:
+
+```
+docker run -p 8080:8080 --rm -e "FLATTIE_LOG_LEVEL=trace" flattie
+```
+
 ### Fun Fact
 
 Flattie spiders are known to have one of the fastest strikes on prey among all spiders. They have some of the fastest response times on the literal web!
