@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  flattie:
+    build: ../..
+    expose:
+      - 8080
+  flattie_e2e_tests:
+    build: .
+    environment:
+      FLATTIE_URL: http://flattie:8080
+    depends_on:
+      - flattie

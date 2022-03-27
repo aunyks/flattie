@@ -2,4 +2,3 @@
 *.swp
 __pycache__
 *.sqlite*
-test/
