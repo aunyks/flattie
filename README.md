@@ -30,7 +30,9 @@ Default: `sqlite::memory:` (in-memory SQLite database)
 
 This variable determines which SQL database the server will connect to for database operations. At the moment, only SQLite and MySQL are supported, but other flavors can be supported by adding their respective `sqlx` features to this project's `Cargo.toml` ([Read more](https://github.com/launchbadge/sqlx)).
 
-## Unit Tests
+## Testing
+
+**Unit Tests**
 
 To run unit tests:
 
@@ -38,12 +40,22 @@ To run unit tests:
 cargo test
 ```
 
+**End-to-End Tests**
+
+To run E2E tests:
+
+```
+docker compose --file test/e2e/docker-compose.yaml up --build --abort-on-container-exit
+```
+
 ## Local Development
 
 To build and run a development version of the server:
 
 ```
+
 cargo run
+
 ```
 
 ## Local Development (Hot Reloading)
@@ -51,13 +63,17 @@ cargo run
 In some cases, especially when editing frontend code, having the server reload once a file has changed can save lots of time. To do so with flattie, install `cargo-watch`. Note: this will install `cargo-watch` globally on your machine, not just for this project.
 
 ```
+
 cargo install cargo-watch
+
 ```
 
 Then, run the following command to start the server and have it automatically reload when _any_ file is changed.
 
 ```
+
 cargo watch -x 'run'
+
 ```
 
 ## Build for Release
@@ -65,7 +81,9 @@ cargo watch -x 'run'
 To build a release binary:
 
 ```
+
 cargo build --release
+
 ```
 
 Note that you can set the optimization levels for release builds with the `opt-level` value in `Cargo.toml`. More details can be found in [the Cargo reference](https://doc.rust-lang.org/cargo/reference/profiles.html#opt-level).
@@ -77,13 +95,17 @@ For enhanced portability and consistency, you can build this project into a Dock
 To build the flattie image with default configuration, run:
 
 ```
+
 docker build -t flattie .
+
 ```
 
 To run it with default configuration, run:
 
 ```
+
 docker run -p 8080:8080 --rm flattie
+
 ```
 
 You can configure flattie at build _or_ run time.
@@ -92,7 +114,9 @@ You can configure flattie at build _or_ run time.
 To configure flattie at build time, specify environment variables as build arguments prefixed with `ENV_`. For example, if you'd like to set the log level at build time you can run:
 
 ```
+
 docker build -t flattie . --build-arg ENV_FLATTIE_LOG_LEVEL=flattie=trace
+
 ```
 
 You can then run the container normally, as the environment variables will already be configured.
@@ -101,7 +125,9 @@ You can then run the container normally, as the environment variables will alrea
 To configure flattie at run time, specify environment variables as normal. For example, if you'd like to set the log level at run time you can run:
 
 ```
+
 docker run -p 8080:8080 --rm -e "FLATTIE_LOG_LEVEL=trace" flattie
+
 ```
 
 ### Fun Fact
@@ -109,3 +135,7 @@ docker run -p 8080:8080 --rm -e "FLATTIE_LOG_LEVEL=trace" flattie
 Flattie spiders are known to have one of the fastest strikes on prey among all spiders. They have some of the fastest response times on the literal web!
 
 Copyright (C) 2021 Gerald Nash
+
+```
+
+```

@@ -9,6 +9,12 @@ edition = "2021"
 opt-level = 3
 
 [dependencies]
+# https://github.com/rust-lang/regex
+regex = "1.5.5"
+
+# https://github.com/serde-rs/serde
+serde = "1.0.136"
+
 # https://github.com/actix/actix-web
 actix-web = "3.3.2"
 

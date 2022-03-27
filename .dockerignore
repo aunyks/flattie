@@ -1,5 +1,7 @@
 migrations/
 target/
+test/
 .git
 **/README.md
 Dockerfile
+__pycache__

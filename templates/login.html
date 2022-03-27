@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log in - Flattie Web Server</title>
+    <meta name="description" content="Log in for Flattie.">
+    <link rel="stylesheet" href="/static/css/pico.min.css">
+    <link rel="stylesheet" href="/static/css/flattie.css">
+    <link rel="stylesheet" href="/static/css/auth.css">
+  </head>
+  <body>
+    <nav class="container-fluid">
+      <ul>
+        <li><a href="/" class="contrast"><strong>Flattie</strong></a></li>
+      </ul>
+    </nav>
+    <main class="container">
+        <div>
+            <hgroup>
+              <h1>Log in</h1>
+              <h2>Get ready for the good stuff</h2>
+            </hgroup>
+                {% match error_message %}
+                    {% when Some with (message) %}
+                        <p class="auth_error">
+                            {{ message }}
+                        </p>
+                    {% when None%}
+                {% endmatch %}
+            <form action="/login" method="post">
+              <input type="text" name="username_or_email" placeholder="Username or Email" aria-label="Username or Email" autocomplete="on" required>
+              <input type="password" name="password" placeholder="Password" aria-label="Password" autocomplete="current-password" required>
+              <button type="submit" class="contrast">Log in</button>
+            </form>
+        </div>
+        <hr/>
+        <p>
+            Need an account? <a href="/signup">Sign up</a>
+        </p>
+    </main>
+  </body>
+</html>

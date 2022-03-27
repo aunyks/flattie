@@ -1,3 +1,5 @@
+use std::{fmt, fmt::Display};
+
 use argon2::{
     password_hash::{
         rand_core::OsRng as Argon2OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
@@ -15,7 +17,17 @@ pub struct User {
     password: Option<String>,
 }
 
+impl Display for User {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "User (username: {})", &self.username)
+    }
+}
+
 impl User {
+    pub fn username(&self) -> &String {
+        &self.username
+    }
+
     pub async fn create(
         username: String,
         plaintext_password: Option<String>,
@@ -1480,6 +1492,29 @@ mod tests {
         // Make sure they're not equal (should be
         // effectively guaranteed) by the OsRng
         assert_ne!(login_token1, login_token2);
+    }
+
+    #[test]
+    fn display_user() {
+        assert_eq!(
+            "User (username: my_username)",
+            format!(
+                "{}",
+                User {
+                    username: String::from("my_username"),
+                    password: Some(String::from("hunter2")),
+                }
+            )
+        );
+    }
+
+    #[test]
+    fn get_user_username() {
+        let user = User {
+            username: String::from("virgilhawkins"),
+            password: None,
+        };
+        assert_eq!(user.username(), &String::from("virgilhawkins"),);
     }
 
     // use lettre::{

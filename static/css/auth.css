@@ -1,0 +1,25 @@
+p.auth_error {
+  background: red;
+  color: white;
+  border-radius: 5px;
+  padding-top: calc(var(--typography-spacing-vertical) / 2);
+  padding-left: var(--spacing);
+  padding-right: var(--spacing);
+  padding-bottom: calc(var(--typography-spacing-vertical) / 2);
+}
+
+body > main > p {
+  margin-top: var(--typography-spacing-vertical);
+}
+
+@media (min-width: 576px) {
+  main.container {
+    width: 50%;
+  }
+}
+
+@media (min-width: 1200px) {
+  main.container {
+    width: 30%;
+  }
+}

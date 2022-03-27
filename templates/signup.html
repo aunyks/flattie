@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign up - Flattie Web Server</title>
+    <meta name="description" content="Sign up for Flattie.">
+    <link rel="stylesheet" href="/static/css/pico.min.css">
+    <link rel="stylesheet" href="/static/css/flattie.css">
+    <link rel="stylesheet" href="/static/css/auth.css">
+  </head>
+  <body>
+    <nav class="container-fluid">
+      <ul>
+        <li><a href="/" class="contrast"><strong>Flattie</strong></a></li>
+      </ul>
+    </nav>
+    <main class="container">
+        <div>
+            <hgroup>
+              <h1>Sign up</h1>
+              <h2>Get ready for the good stuff</h2>
+            </hgroup>
+                {% match error_message %}
+                    {% when Some with (message) %}
+                        <p class="auth_error">
+                            {{ message }}
+                        </p>
+                    {% when None%}
+                {% endmatch %}
+            <form action="/signup" method="post">
+              <input type="text" name="username" placeholder="Username" aria-label="Username" autocomplete="username" required>
+              <input type="email" name="email" placeholder="Email" aria-label="Email" autocomplete="email" required>
+              <input type="password" name="password" placeholder="Password" aria-label="Password" autocomplete="new-password" required>
+              <button type="submit" class="contrast">Sign up</button>
+            </form>
+            <p>
+                By signing up, you agree to our <a href="">terms of service</a> and <a href="">privacy policy</a>.
+            </p>
+        </div>
+        <hr/>
+        <p>
+            Already have an account? <a href="/login">Log in</a>
+        </p>
+    </main>
+  </body>
+</html>

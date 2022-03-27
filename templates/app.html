@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flattie Web App</title>
+    <meta name="description" content="Log in for Flattie.">
+    <link rel="stylesheet" href="/static/css/pico.min.css">
+    <link rel="stylesheet" href="/static/css/flattie.css">
+  </head>
+  <body>
+    <nav class="container-fluid">
+      <ul>
+        <li><a href="/" class="contrast"><strong>Flattie</strong></a></li>
+      </ul>
+    </nav>
+    <main class="container">
+        <hgroup>
+            <h1>{{ username }}</h1>
+        </hgroup>
+        <div>
+            <form action="/logout" method="post">
+              <button type="submit" class="contrast">Log out</button>
+            </form>
+        </div>
+    </main>
+  </body>
+</html>

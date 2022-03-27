@@ -2,10 +2,13 @@ use actix_files::Files;
 use actix_web::{web, App, HttpServer};
 use env_logger::{Builder, Env};
 use log::{error, info, warn};
+use routes::{app, auth, marketing};
 use sqlx::any::AnyPoolOptions;
 use std::{env, process::exit};
+mod constants;
 mod models;
 mod routes;
+mod shared;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -44,7 +47,13 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(db_connection_pool.clone())
-            .route("/", web::get().to(routes::marketing::homepage))
+            .route("/", web::get().to(marketing::homepage))
+            .route("/signup", web::get().to(auth::signup_page))
+            .route("/signup", web::post().to(auth::signup_user))
+            .route("/login", web::get().to(auth::login_page))
+            .route("/login", web::post().to(auth::login_user))
+            .route("/app", web::get().to(app::main))
+            .route("/logout", web::post().to(auth::logout_user))
             .service(Files::new("/static", "./static"))
     })
     .bind(bind_address)?
