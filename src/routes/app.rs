@@ -1,5 +1,5 @@
 use crate::models::User;
-use crate::shared::{is_valid_email, is_valid_password, is_valid_username};
+use crate::shared::is_valid_password;
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
 use askama::Template;
 use log::warn;
