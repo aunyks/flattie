@@ -12,14 +12,20 @@ body > main > p {
   margin-top: var(--typography-spacing-vertical);
 }
 
-@media (min-width: 576px) {
+@media only screen and (min-width: 576px) {
   main.container {
     width: 50%;
   }
 }
 
-@media (min-width: 1200px) {
+@media only screen and (min-width: 1200px) {
   main.container {
     width: 30%;
+  }
+}
+
+@media only screen and (prefers-color-scheme: dark) {
+  p.auth_error {
+    background: #c00;
   }
 }
