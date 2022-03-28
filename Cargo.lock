@@ -874,6 +874,7 @@ dependencies = [
  "askama",
  "base64 0.13.0",
  "env_logger",
+ "futures",
  "lettre",
  "log",
  "rand 0.8.4",

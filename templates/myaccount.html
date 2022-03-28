@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flattie Web App</title>
+    <meta name="description" content="Log in for Flattie.">
+    <link rel="stylesheet" href="/static/css/pico.min.css">
+    <link rel="stylesheet" href="/static/css/flattie.css">
+    <style>
+      p.error, p.info {
+  color: white;
+  border-radius: 5px;
+  padding-top: calc(var(--typography-spacing-vertical) / 2);
+  padding-left: var(--spacing);
+  padding-right: var(--spacing);
+  padding-bottom: calc(var(--typography-spacing-vertical) / 2);
+}
+p.error {
+  background: red;
+}
+p.info {
+  background: #04f;
+}
+
+@media only screen and (prefers-color-scheme: dark) {
+  p.error {
+    background: #c00;
+  }
+
+  p.info {
+  background: #04c;
+}
+}
+    </style>
+  </head>
+  <body>
+    <nav class="container-fluid">
+      <ul>
+        <li><a href="/" class="contrast"><strong>Flattie</strong></a></li>
+      </ul>
+    </nav>
+    <main class="container">
+        <hgroup>
+            <h1>{{ username }}</h1>
+        </hgroup>
+        <div>
+          <h2>Change Password</h2>
+          {% match password_change_error %}
+            {% when Some with (message) %}
+                <p class="error">
+                    {{ message }}
+                </p>
+            {% when None%}
+          {% endmatch %}
+          {% match password_change_msg %}
+            {% when Some with (message) %}
+                <p class="info">
+                    {{ message }}
+                </p>
+            {% when None%}
+          {% endmatch %}
+          <form action="/change-password" method="post">
+            <label for="current_password">Current Password</label>
+            <input type="password" name="current_password" aria-label="Current Password" autocomplete="current-password" required>
+            <label for="new_password">New Password</label>
+            <input type="password" name="new_password" aria-label="New Password" autocomplete="new-password" required>
+            <button type="submit" class="contrast">Change password</button>
+          </form>
+      </div>
+        <div>
+            <form action="/logout" method="post">
+              <button type="submit" class="contrast">Log out</button>
+            </form>
+        </div>
+    </main>
+  </body>
+</html>

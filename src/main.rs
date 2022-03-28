@@ -47,13 +47,17 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(db_connection_pool.clone())
+            // Marketing
             .route("/", web::get().to(marketing::homepage))
+            // Auth
             .route("/signup", web::get().to(auth::signup_page))
             .route("/signup", web::post().to(auth::signup_user))
             .route("/login", web::get().to(auth::login_page))
             .route("/login", web::post().to(auth::login_user))
-            .route("/app", web::get().to(app::main))
             .route("/logout", web::post().to(auth::logout_user))
+            // Behind auth wall
+            .route("/my-account", web::get().to(app::myaccount_page))
+            .route("/change-password", web::post().to(app::change_password))
             .service(Files::new("/static", "./static"))
     })
     .bind(bind_address)?

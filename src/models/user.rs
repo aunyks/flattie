@@ -7,9 +7,16 @@ use argon2::{
     Argon2,
 };
 use base64::{encode_config, CharacterSet, Config};
+use futures::TryStreamExt;
 use log::{debug, error, trace, warn};
 use rand::{rngs::OsRng, RngCore};
 use sqlx::{AnyPool, Row};
+
+#[derive(PartialEq, Eq, Debug)]
+pub struct ExternalAsset {
+    asset: String,
+    is_verified: bool,
+}
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct User {
@@ -386,6 +393,74 @@ impl User {
                 false
             }
         }
+    }
+
+    pub async fn emails(&self, conn_pool: &AnyPool) -> Result<Vec<ExternalAsset>, &str> {
+        trace!("User.emails(): Invoked");
+        let mut sql_connection = match conn_pool.acquire().await {
+            Ok(conn) => conn,
+            Err(err) => {
+                error!(
+                    "Could not acquire SQL connection from pool! {}",
+                    err.to_string()
+                );
+                return Err("Could not acquire SQL connection from pool!");
+            }
+        };
+        let mut rows = sqlx::query(
+            "SELECT address, is_verified FROM Emails WHERE user_id = (SELECT id FROM Users WHERE username = ?)",
+        )
+        .bind(&self.username)
+        .fetch(&mut sql_connection);
+
+        let mut emails: Vec<ExternalAsset> = Vec::new();
+        while let Some(row) = match rows.try_next().await {
+            Ok(raw_row) => raw_row,
+            Err(_) => {
+                return Err("Could not iterate along results whiel querying for user emails!")
+            }
+        } {
+            let email_asset = ExternalAsset {
+                asset: row.get::<String, _>("address"),
+                is_verified: row.get::<bool, _>("is_verified"),
+            };
+            emails.push(email_asset);
+        }
+        Ok(emails)
+    }
+
+    pub async fn eth_addresses(&self, conn_pool: &AnyPool) -> Result<Vec<ExternalAsset>, &str> {
+        trace!("User.eth_addresses(): Invoked");
+        let mut sql_connection = match conn_pool.acquire().await {
+            Ok(conn) => conn,
+            Err(err) => {
+                error!(
+                    "Could not acquire SQL connection from pool! {}",
+                    err.to_string()
+                );
+                return Err("Could not acquire SQL connection from pool!");
+            }
+        };
+        let mut rows = sqlx::query(
+            "SELECT address, is_verified FROM EthereumAddresses WHERE user_id = (SELECT id FROM Users WHERE username = ?)",
+        )
+        .bind(&self.username)
+        .fetch(&mut sql_connection);
+
+        let mut eth_addresses: Vec<ExternalAsset> = Vec::new();
+        while let Some(row) = match rows.try_next().await {
+            Ok(raw_row) => raw_row,
+            Err(_) => {
+                return Err("Could not iterate along results whiel querying for user emails!")
+            }
+        } {
+            let eth_address_asset = ExternalAsset {
+                asset: row.get::<String, _>("address"),
+                is_verified: row.get::<bool, _>("is_verified"),
+            };
+            eth_addresses.push(eth_address_asset);
+        }
+        Ok(eth_addresses)
     }
 
     pub async fn add_eth_address(
@@ -1101,6 +1176,52 @@ mod tests {
 
     #[allow(unused_must_use)]
     #[actix_rt::test]
+    async fn emails() {
+        // Get a pool to connect to an in-memory DB
+        let test_pool = create_test_sql_pool().await;
+        // Create our user table
+        create_user_tables(&test_pool).await;
+
+        // Create the user using the model
+        let user = match User::create(
+            String::from("my_username"),
+            Some(String::from("hunter2")),
+            &test_pool,
+        )
+        .await
+        {
+            Ok(user) => user,
+            Err(msg) => panic!("{}", msg),
+        };
+        // Add an email for this user
+        user.add_email(String::from("test@example.com"), false, &test_pool)
+            .await;
+        // Update it
+        user.add_email(String::from("test2@example.com"), true, &test_pool)
+            .await;
+        // Get a user using the new email
+        let recovered_user =
+            match User::with_email(String::from("test2@example.com"), &test_pool).await {
+                Ok(user) => user,
+                Err(msg) => panic!("{}", msg),
+            };
+        assert_eq!(
+            recovered_user.emails(&test_pool).await.unwrap(),
+            vec![
+                ExternalAsset {
+                    asset: String::from("test@example.com"),
+                    is_verified: false
+                },
+                ExternalAsset {
+                    asset: String::from("test2@example.com"),
+                    is_verified: true
+                }
+            ]
+        );
+    }
+
+    #[allow(unused_must_use)]
+    #[actix_rt::test]
     async fn delete_email() {
         // Get a pool to connect to an in-memory DB
         let test_pool = create_test_sql_pool().await;
@@ -1281,6 +1402,64 @@ mod tests {
         )
         .await
         .is_err());
+    }
+
+    #[allow(unused_must_use)]
+    #[actix_rt::test]
+    async fn eth_addresses() {
+        // Get a pool to connect to an in-memory DB
+        let test_pool = create_test_sql_pool().await;
+        // Create our user table
+        create_user_tables(&test_pool).await;
+
+        // Create the user using the model
+        let user = match User::create(
+            String::from("my_username"),
+            Some(String::from("hunter2")),
+            &test_pool,
+        )
+        .await
+        {
+            Ok(user) => user,
+            Err(msg) => panic!("{}", msg),
+        };
+        // Add an email for this user
+        user.add_eth_address(
+            String::from("0x0000000000000000000000000000000000000000"),
+            false,
+            &test_pool,
+        )
+        .await;
+        // Update it
+        user.add_eth_address(
+            String::from("0x2125E5963f17643461bE3067bA75c62dAC9f3D4A"),
+            true,
+            &test_pool,
+        )
+        .await;
+        // Get a user using the new email
+        let recovered_user = match User::with_eth_address(
+            String::from("0x2125E5963f17643461bE3067bA75c62dAC9f3D4A"),
+            &test_pool,
+        )
+        .await
+        {
+            Ok(user) => user,
+            Err(msg) => panic!("{}", msg),
+        };
+        assert_eq!(
+            recovered_user.eth_addresses(&test_pool).await.unwrap(),
+            vec![
+                ExternalAsset {
+                    asset: String::from("0x0000000000000000000000000000000000000000"),
+                    is_verified: false
+                },
+                ExternalAsset {
+                    asset: String::from("0x2125E5963f17643461bE3067bA75c62dAC9f3D4A"),
+                    is_verified: true
+                }
+            ]
+        );
     }
 
     #[allow(unused_must_use)]

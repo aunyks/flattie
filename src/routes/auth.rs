@@ -2,7 +2,7 @@ use crate::models::User;
 use crate::shared::{is_valid_email, is_valid_password, is_valid_username};
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
 use askama::Template;
-use log::error;
+use log::warn;
 use serde::Deserialize;
 use sqlx::AnyPool;
 
@@ -97,7 +97,7 @@ pub async fn signup_user(
                 .add_login_token(login_token.clone(), &db_connection)
                 .await
             {
-                error!(
+                warn!(
                     "Could not create login token for {} during signup!\nError: {}",
                     &user, msg
                 );
@@ -123,7 +123,7 @@ pub async fn signup_user(
                 .finish()
         }
         Err(msg) => {
-            error!(
+            warn!(
                 "Error occurred while creating a new user during signup:\n{}",
                 msg
             );
@@ -179,7 +179,7 @@ pub async fn login_user(
                             .add_login_token(login_token.clone(), &db_connection)
                             .await
                         {
-                            error!(
+                            warn!(
                                 "Could not create login token for {} during login!\nError: {}",
                                 &user, msg
                             );
@@ -205,7 +205,7 @@ pub async fn login_user(
                             .finish()
                     }
                     false => {
-                        error!("{} attempted login with incorrect password", &user);
+                        warn!("{} attempted login with incorrect password", &user);
                         login_error.error_message = Some(String::from("Password is incorrect"));
                         let login_html = login_error.render().unwrap();
                         HttpResponse::Ok()
@@ -214,7 +214,7 @@ pub async fn login_user(
                     }
                 },
                 Err(msg) => {
-                    error!(
+                    warn!(
                         "User with unrecognized email {} attempted login\nError: {}",
                         &login_details.username_or_email, msg
                     );
@@ -241,7 +241,7 @@ pub async fn login_user(
                                 .add_login_token(login_token.clone(), &db_connection)
                                 .await
                             {
-                                error!(
+                                warn!(
                                     "Could not create login token for {} during login!\nError: {}",
                                     &user, msg
                                 );
@@ -267,7 +267,7 @@ pub async fn login_user(
                                 .finish()
                         }
                         false => {
-                            error!("{} attempted login with incorrect password", &user);
+                            warn!("{} attempted login with incorrect password", &user);
                             login_error.error_message = Some(String::from("Password is incorrect"));
                             let login_html = login_error.render().unwrap();
                             HttpResponse::Ok()
@@ -276,7 +276,7 @@ pub async fn login_user(
                         }
                     },
                     Err(msg) => {
-                        error!(
+                        warn!(
                             "User with unrecognized email {} attempted login\nError: {}",
                             &login_details.username_or_email, msg
                         );
@@ -320,7 +320,7 @@ pub async fn logout_user(request: HttpRequest, db_connection: web::Data<AnyPool>
                         )
                         .finish(),
                     Err(msg) => {
-                        error!("Could not delete login token of {}.\nError: {}", &user, msg);
+                        warn!("Could not delete login token of {}.\nError: {}", &user, msg);
                         HttpResponse::InternalServerError().finish()
                     }
                 },
