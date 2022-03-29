@@ -69,7 +69,7 @@ pub async fn signup_user(
         .await
         .is_ok()
     {
-        signup_error.error_message = Some(String::from("Email already taken"));
+        signup_error.error_message = Some(String::from("Email already in use"));
         let signup_html = signup_error.render().unwrap();
         return HttpResponse::Ok()
             .content_type("text/html; charset=UTF-8")
