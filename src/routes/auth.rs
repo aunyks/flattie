@@ -2,7 +2,7 @@ use crate::models::User;
 use crate::shared::{is_valid_email, is_valid_password, is_valid_username};
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
 use askama::Template;
-use log::warn;
+use log::{error, warn};
 use serde::Deserialize;
 use sqlx::AnyPool;
 
@@ -92,6 +92,21 @@ pub async fn signup_user(
     .await
     {
         Ok(user) => {
+            if let Err(msg) = user
+                .add_email(signup_details.email.clone(), false, &db_connection)
+                .await
+            {
+                error!(
+                    "Could not add email for newly created user {}.\nError: {}",
+                    user, msg
+                );
+                signup_error.error_message =
+                    Some(String::from("Unknown error occurred. Please try again"));
+                let signup_html = signup_error.render().unwrap();
+                return HttpResponse::Ok()
+                    .content_type("text/html; charset=UTF-8")
+                    .body(signup_html);
+            }
             let login_token = User::generate_login_token();
             if let Err(msg) = user
                 .add_login_token(login_token.clone(), &db_connection)

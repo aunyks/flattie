@@ -57,6 +57,8 @@ async fn main() -> std::io::Result<()> {
             .route("/logout", web::post().to(auth::logout_user))
             // Behind auth wall
             .route("/my-account", web::get().to(app::myaccount_page))
+            .route("/add-email", web::post().to(app::add_email))
+            .route("/remove-email", web::post().to(app::remove_email))
             .route("/change-password", web::post().to(app::change_password))
             .service(Files::new("/static", "./static"))
     })

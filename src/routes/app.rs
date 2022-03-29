@@ -1,8 +1,9 @@
+use crate::models::ExternalAsset;
 use crate::models::User;
-use crate::shared::is_valid_password;
+use crate::shared::{is_valid_email, is_valid_password};
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
 use askama::Template;
-use log::warn;
+use log::{error, warn};
 use serde::Deserialize;
 use sqlx::AnyPool;
 
@@ -10,6 +11,7 @@ use sqlx::AnyPool;
 #[template(path = "myaccount.html")]
 struct MyAccountPage {
     username: String,
+    emails: Vec<ExternalAsset>,
     password_change_msg: Option<String>,
     password_change_error: Option<String>,
 }
@@ -23,8 +25,19 @@ pub async fn myaccount_page(
             let login_token = String::from(token_cookie.value());
             match User::with_login_token(login_token.clone(), &db_connection).await {
                 Ok(user) => {
+                    let emails = match user.emails(&db_connection).await {
+                        Ok(email_vec) => email_vec,
+                        Err(msg) => {
+                            error!(
+                                "Error occurred while getting {} emails.\nError: {}",
+                                user, msg
+                            );
+                            return HttpResponse::InternalServerError().finish();
+                        }
+                    };
                     let my_account_html = (MyAccountPage {
                         username: user.username().clone(),
+                        emails: emails,
                         password_change_msg: None,
                         password_change_error: None,
                     })
@@ -70,9 +83,20 @@ pub async fn change_password(
             let login_token = String::from(token_cookie.value());
             match User::with_login_token(login_token.clone(), &db_connection).await {
                 Ok(mut user) => {
+                    let emails = match user.emails(&db_connection).await {
+                        Ok(email_vec) => email_vec,
+                        Err(msg) => {
+                            error!(
+                                "Error occurred while getting {} emails.\nError: {}",
+                                user, msg
+                            );
+                            return HttpResponse::InternalServerError().finish();
+                        }
+                    };
                     if !user.has_password(ch_pass_details.current_password.clone()) {
                         let my_account_html = (MyAccountPage {
                             username: user.username().clone(),
+                            emails: emails,
                             password_change_msg: None,
                             password_change_error: Some(String::from("Current password incorrect")),
                         })
@@ -85,6 +109,7 @@ pub async fn change_password(
                     if !is_valid_password(&ch_pass_details.new_password) {
                         let my_account_html = (MyAccountPage {
                             username: user.username().clone(),
+                            emails: emails,
                             password_change_msg: None,
                             password_change_error: Some(String::from(
                                 "New password invalid. Password not changed",
@@ -103,6 +128,7 @@ pub async fn change_password(
                         Ok(_) => {
                             let my_account_html = (MyAccountPage {
                                 username: user.username().clone(),
+                                emails,
                                 password_change_msg: Some(String::from(
                                     "Password changed successfully",
                                 )),
@@ -121,6 +147,7 @@ pub async fn change_password(
                             );
                             let my_account_html = (MyAccountPage {
                                 username: user.username().clone(),
+                                emails,
                                 password_change_msg: None,
                                 password_change_error: Some(String::from(
                                     "Could not change password",
@@ -135,7 +162,138 @@ pub async fn change_password(
                     }
                 }
                 Err(msg) => {
-                    warn!("Error while getting user from login token while navigating to main app page {}", msg);
+                    warn!(
+                        "Error while getting user from login token while changing password {}",
+                        msg
+                    );
+                    HttpResponse::Found()
+                        .header(
+                            "Location",
+                            crate::constants::auth::UNAUTHENTICATED_REDIRECT_DESTINATION,
+                        )
+                        .finish()
+                }
+            }
+        }
+        None => HttpResponse::Found()
+            .header(
+                "Location",
+                crate::constants::auth::UNAUTHENTICATED_REDIRECT_DESTINATION,
+            )
+            .finish(),
+    }
+}
+
+#[derive(Deserialize)]
+pub struct AddEmail {
+    password: String,
+    new_email: String,
+}
+
+pub async fn add_email(
+    request: HttpRequest,
+    db_connection: web::Data<AnyPool>,
+    add_email_details: web::Form<AddEmail>,
+) -> HttpResponse {
+    match request.cookie("login_token") {
+        Some(token_cookie) => {
+            let login_token = String::from(token_cookie.value());
+            match User::with_login_token(login_token.clone(), &db_connection).await {
+                Ok(user) => {
+                    if !user.has_password(add_email_details.password.clone()) {
+                        warn!(
+                            "User {} used incorrect password while adding new email",
+                            user
+                        );
+                        return HttpResponse::Found()
+                            .header("Location", "/my-account")
+                            .finish();
+                    }
+                    if !is_valid_email(&add_email_details.new_email) {
+                        warn!("User {} tried adding invalid email", user);
+                        return HttpResponse::Found()
+                            .header("Location", "/my-account")
+                            .finish();
+                    }
+                    if let Err(msg) = user
+                        .add_email(add_email_details.new_email.clone(), false, &db_connection)
+                        .await
+                    {
+                        error!(
+                            "Error occurred while adding user {} email.\nError: {}",
+                            user, msg
+                        );
+                    }
+                    HttpResponse::Found()
+                        .header("Location", "/my-account")
+                        .finish()
+                }
+                Err(msg) => {
+                    warn!(
+                        "Error while getting user from login token while adding email {}",
+                        msg
+                    );
+                    HttpResponse::Found()
+                        .header(
+                            "Location",
+                            crate::constants::auth::UNAUTHENTICATED_REDIRECT_DESTINATION,
+                        )
+                        .finish()
+                }
+            }
+        }
+        None => HttpResponse::Found()
+            .header(
+                "Location",
+                crate::constants::auth::UNAUTHENTICATED_REDIRECT_DESTINATION,
+            )
+            .finish(),
+    }
+}
+
+#[derive(Deserialize)]
+pub struct RemoveEmail {
+    email: String,
+    password: String,
+}
+
+pub async fn remove_email(
+    request: HttpRequest,
+    db_connection: web::Data<AnyPool>,
+    remove_email_details: web::Form<RemoveEmail>,
+) -> HttpResponse {
+    match request.cookie("login_token") {
+        Some(token_cookie) => {
+            let login_token = String::from(token_cookie.value());
+            match User::with_login_token(login_token.clone(), &db_connection).await {
+                Ok(user) => {
+                    if !user.has_password(remove_email_details.password.clone()) {
+                        warn!(
+                            "User {} used incorrect password while adding new email",
+                            user
+                        );
+                        return HttpResponse::Found()
+                            .header("Location", "/my-account")
+                            .finish();
+                    }
+                    if let Err(msg) = user
+                        .delete_email(remove_email_details.email.clone(), &db_connection)
+                        .await
+                    {
+                        error!(
+                            "Error occurred while adding user {} email.\nError: {}",
+                            user, msg
+                        );
+                    }
+                    HttpResponse::Found()
+                        .header("Location", "/my-account")
+                        .finish()
+                }
+                Err(msg) => {
+                    warn!(
+                        "Error while getting user from login token while removing email {}",
+                        msg
+                    );
                     HttpResponse::Found()
                         .header(
                             "Location",

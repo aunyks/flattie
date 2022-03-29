@@ -14,8 +14,8 @@ use sqlx::{AnyPool, Row};
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct ExternalAsset {
-    asset: String,
-    is_verified: bool,
+    pub asset: String,
+    pub is_verified: bool,
 }
 
 #[derive(PartialEq, Eq, Debug)]
