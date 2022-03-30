@@ -104,9 +104,11 @@
                     {% endif %}
                   </td>
                   <td>
-                    <form action="/delete-email" method="post" style="margin-bottom: 0;">
-                      <button type="submit" class="warning" style="margin-bottom: 0;" data-target="remove-email-{{ loop.index }}-modal" onClick="toggleModal(event)">Remove</button>
-                    </form>
+                    {% if emails.len() > 1 %}
+                      <form action="/app/delete-email" method="post" style="margin-bottom: 0;">
+                        <button type="submit" class="warning" style="margin-bottom: 0;" data-target="remove-email-{{ loop.index }}-modal" onClick="toggleModal(event)">Remove</button>
+                      </form>
+                    {% endif %}
                   </td>
                 </tr>
               {% endfor %}
@@ -131,7 +133,7 @@
               </p>
           {% when None%}
         {% endmatch %}
-        <form action="/change-password" method="post">
+        <form action="/app/change-password" method="post">
           <label for="current_password">Current Password</label>
           <input type="password" name="current_password" aria-label="Current Password" autocomplete="current-password" required>
           <label for="new_password">New Password</label>
@@ -155,7 +157,7 @@
           onClick="toggleModal(event)">
         </a>
         <h3>Add a new email</h3>
-        <form action="/add-email" method="post">
+        <form action="/app/add-email" method="post">
           <input type="email" name="new_email" placeholder="New Email" aria-label="New Email" autocomplete="email" required>
           <input type="password" name="password" placeholder="Confirm Password" aria-label="Confirm Password" autocomplete="current-password" required>
           <button type="submit" class="contrast">Add email</button>
@@ -176,7 +178,7 @@
             To remove <b>{{ email_asset.asset }}</b> from your account, confirm your 
             password below.
           </p>
-          <form action="/remove-email" method="post">
+          <form action="/app/remove-email" method="post">
             <input type="hidden" name="email" value="{{ email_asset.asset }}">
             <input type="password" name="password" placeholder="Confirm Password" aria-label="Confirm Password" autocomplete="current-password" required>
             <button type="submit" class="contrast">Remove email</button>

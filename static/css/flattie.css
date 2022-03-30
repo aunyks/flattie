@@ -185,3 +185,11 @@ dialog > article {
 .modal-is-closing dialog > article {
   animation-direction: reverse;
 }
+
+a[role='button'],
+button,
+input[type='button'],
+input[type='reset'],
+input[type='submit'] {
+  border: none;
+}

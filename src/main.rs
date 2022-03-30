@@ -6,6 +6,7 @@ use routes::{app, auth, marketing};
 use sqlx::any::AnyPoolOptions;
 use std::{env, process::exit};
 mod constants;
+mod middleware;
 mod models;
 mod routes;
 mod shared;
@@ -47,6 +48,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(db_connection_pool.clone())
+            .service(Files::new("/static", "./static"))
             // Marketing
             .route("/", web::get().to(marketing::homepage))
             // Auth
@@ -56,11 +58,14 @@ async fn main() -> std::io::Result<()> {
             .route("/login", web::post().to(auth::login_user))
             .route("/logout", web::post().to(auth::logout_user))
             // Behind auth wall
-            .route("/my-account", web::get().to(app::myaccount_page))
-            .route("/add-email", web::post().to(app::add_email))
-            .route("/remove-email", web::post().to(app::remove_email))
-            .route("/change-password", web::post().to(app::change_password))
-            .service(Files::new("/static", "./static"))
+            .service(
+                web::scope("/app/")
+                    .wrap(middleware::IsAuthenticated)
+                    .route("/my-account", web::get().to(app::myaccount_page))
+                    .route("/add-email", web::post().to(app::add_email))
+                    .route("/remove-email", web::post().to(app::remove_email))
+                    .route("/change-password", web::post().to(app::change_password)),
+            )
     })
     .bind(bind_address)?
     .run()

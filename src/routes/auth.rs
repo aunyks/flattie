@@ -1,5 +1,6 @@
 use crate::models::User;
 use crate::shared::{is_valid_email, is_valid_password, is_valid_username};
+use actix_web::http;
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
 use askama::Template;
 use log::{error, warn};
@@ -132,7 +133,7 @@ pub async fn signup_user(
                     ),
                 )
                 .header(
-                    "Location",
+                    http::header::LOCATION,
                     crate::constants::auth::POST_SIGNUP_REDIRECT_DESTINATION,
                 )
                 .finish()
@@ -214,7 +215,7 @@ pub async fn login_user(
                 ),
                             )
                             .header(
-                                "Location",
+                                http::header::LOCATION,
                                 crate::constants::auth::POST_LOGIN_REDIRECT_DESTINATION,
                             )
                             .finish()
@@ -276,7 +277,7 @@ pub async fn login_user(
                     ),
                                 )
                                 .header(
-                                    "Location",
+                                    http::header::LOCATION,
                                     crate::constants::auth::POST_LOGIN_REDIRECT_DESTINATION,
                                 )
                                 .finish()
@@ -326,7 +327,7 @@ pub async fn logout_user(request: HttpRequest, db_connection: web::Data<AnyPool>
                 Ok(user) => match user.delete_login_token(login_token, &db_connection).await {
                     Ok(_) => HttpResponse::Found()
                         .header(
-                            "Location",
+                            http::header::LOCATION,
                             crate::constants::auth::UNAUTHENTICATED_REDIRECT_DESTINATION,
                         )
                         .header(
