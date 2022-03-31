@@ -1,15 +1,13 @@
-use std::borrow::BorrowMut;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::task::{Context, Poll};
-
-use futures::future::{ok, FutureExt, LocalBoxFuture, Ready};
-
 use crate::models::User;
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::http;
 use actix_web::{Error, HttpMessage, HttpResponse};
+use futures::future::{ok, FutureExt, LocalBoxFuture, Ready};
 use sqlx::AnyPool;
+use std::borrow::BorrowMut;
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::task::{Context, Poll};
 
 pub struct IsAuthenticated;
 

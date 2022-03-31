@@ -9,6 +9,15 @@ edition = "2021"
 opt-level = 3
 
 [dependencies]
+# https://github.com/actix/actix-extras/tree/master/actix-cors
+actix-cors = "0.5.4"
+
+# https://github.com/actix/actix
+actix = "0.10.0"
+
+# https://github.com/actix/actix-web/tree/master/actix-web-actors
+actix-web-actors = "3.0.0"
+
 # https://github.com/rust-lang/futures-rs
 futures = "0.3.19"
 

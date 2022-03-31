@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{web, App, HttpServer};
 use env_logger::{Builder, Env};
@@ -48,6 +49,8 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(db_connection_pool.clone())
+            // Uncomment the below to work around CORS issues in dev
+            // .wrap(Cors::default().allow_any_origin())
             .service(Files::new("/static", "./static"))
             // Marketing
             .route("/", web::get().to(marketing::homepage))
@@ -57,6 +60,8 @@ async fn main() -> std::io::Result<()> {
             .route("/login", web::get().to(auth::login_page))
             .route("/login", web::post().to(auth::login_user))
             .route("/logout", web::post().to(auth::logout_user))
+            // Random, mostly for debugging / example
+            .route("/ws", web::get().to(app::echo_ws))
             // Behind auth wall
             .service(
                 web::scope("/app/")
