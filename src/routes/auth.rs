@@ -3,7 +3,7 @@ use crate::shared::{is_valid_email, is_valid_password, is_valid_username};
 use actix_web::http;
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
 use askama::Template;
-use log::{info, error, warn};
+use log::{error, info, warn};
 use serde::Deserialize;
 use sqlx::AnyPool;
 
@@ -207,7 +207,7 @@ pub async fn login_user(
                                 .content_type("text/html; charset=UTF-8")
                                 .body(login_html);
                         }
-                        info!("{} successfully logged in!", &user)
+                        info!("{} successfully logged in!", &user);
                         HttpResponse::Found()
                             .header(
                                 "Set-Cookie",

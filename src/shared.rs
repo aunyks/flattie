@@ -26,7 +26,7 @@ pub fn is_valid_email(email: &String) -> bool {
 }
 
 pub fn is_valid_password(plaintext_password: &String) -> bool {
-    plaintext_password.len() > 8 && plaintext_password.len() < 101
+    plaintext_password.len() >= 8 && plaintext_password.len() < 101
 }
 
 #[cfg(test)]
