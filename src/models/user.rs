@@ -795,27 +795,10 @@ impl User {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use sqlx::any::AnyPoolOptions;
-    use sqlx::pool::PoolConnection;
+pub mod testing_helpers {
     use sqlx::AnyPool;
-    use sqlx::Row;
 
-    async fn create_test_sql_pool() -> AnyPool {
-        match AnyPoolOptions::new()
-            .max_connections(1)
-            .connect("sqlite::memory:")
-            .await
-        {
-            Ok(pool) => pool,
-            Err(_) => {
-                panic!("Could not create start in-memory SQL database!");
-            }
-        }
-    }
-
-    async fn create_user_tables(conn_pool: &AnyPool) {
+    pub async fn create_user_tables(conn_pool: &AnyPool) {
         let mut connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(_) => {
@@ -833,15 +816,14 @@ mod tests {
             }
         }
     }
+}
 
-    async fn get_sql_connection(conn_pool: &AnyPool) -> PoolConnection<sqlx::Any> {
-        match conn_pool.acquire().await {
-            Ok(conn) => conn,
-            Err(_) => {
-                panic!("Could not individual connection to SQL database!");
-            }
-        }
-    }
+#[cfg(test)]
+pub mod tests {
+    use super::testing_helpers::create_user_tables;
+    use super::*;
+    use crate::shared::testing_helpers::{create_test_sql_pool, get_sql_connection};
+    use sqlx::Row;
 
     #[allow(unused_must_use)]
     #[actix_rt::test]

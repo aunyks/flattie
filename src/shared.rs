@@ -30,6 +30,35 @@ pub fn is_valid_password(plaintext_password: &String) -> bool {
 }
 
 #[cfg(test)]
+pub mod testing_helpers {
+    use sqlx::any::AnyPoolOptions;
+    use sqlx::pool::PoolConnection;
+    use sqlx::AnyPool;
+
+    pub async fn create_test_sql_pool() -> AnyPool {
+        match AnyPoolOptions::new()
+            .max_connections(1)
+            .connect("sqlite::memory:")
+            .await
+        {
+            Ok(pool) => pool,
+            Err(_) => {
+                panic!("Could not create start in-memory SQL database!");
+            }
+        }
+    }
+
+    pub async fn get_sql_connection(conn_pool: &AnyPool) -> PoolConnection<sqlx::Any> {
+        match conn_pool.acquire().await {
+            Ok(conn) => conn,
+            Err(_) => {
+                panic!("Could not individual connection to SQL database!");
+            }
+        }
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
