@@ -8,7 +8,7 @@ use argon2::{
 };
 use base64::{encode_config, CharacterSet, Config};
 use futures::TryStreamExt;
-use log::{debug, error, trace, warn};
+use log::{debug, trace, warn};
 use rand::{rngs::OsRng, RngCore};
 use sqlx::{AnyPool, Row};
 
@@ -44,7 +44,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -60,7 +60,7 @@ impl User {
                     match Argon2::default().hash_password(plaintext_pass.as_bytes(), &salt) {
                         Ok(hashed_pass) => hashed_pass.to_string(),
                         Err(err) => {
-                            error!("Could not hash password! {}", err.to_string());
+                            warn!("Could not hash password! {}", err.to_string());
                             return Err("Could not hash password!");
                         }
                     };
@@ -72,7 +72,7 @@ impl User {
                 {
                     Ok(raw_row) => raw_row,
                     Err(err) => {
-                        error!("User creation SQL query failed! {}", err.to_string());
+                        warn!("User creation SQL query failed! {}", err.to_string());
                         return Err("User creation SQL query failed!");
                     }
                 };
@@ -90,7 +90,7 @@ impl User {
                 {
                     Ok(raw_row) => raw_row,
                     Err(err) => {
-                        error!("User creation SQL query failed! {}", err.to_string());
+                        warn!("User creation SQL query failed! {}", err.to_string());
                         return Err("User could not create new user!");
                     }
                 };
@@ -108,7 +108,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -122,7 +122,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!("Could not fetch user by username! {}", err.to_string());
+                warn!("Could not fetch user by username! {}", err.to_string());
                 return Err("Could not fetch user by username!");
             }
         };
@@ -146,7 +146,7 @@ impl User {
         let hashed_password = match PasswordHash::new(this_password.as_str()) {
             Ok(hashed_pass) => hashed_pass,
             Err(err) => {
-                error!(
+                warn!(
                     "User.has_password(): Could not hash provided password, {}",
                     err.to_string()
                 );
@@ -167,7 +167,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -181,7 +181,7 @@ impl User {
             match Argon2::default().hash_password(plaintext_password.as_bytes(), &salt) {
                 Ok(hashed_pass) => hashed_pass.to_string(),
                 Err(err) => {
-                    error!("Could not hash password! {}", err.to_string());
+                    warn!("Could not hash password! {}", err.to_string());
                     return Err("Could not hash password!");
                 }
             };
@@ -195,7 +195,7 @@ impl User {
                 self.password = Some(hashed_password);
             }
             Err(err) => {
-                error!("Password update SQL query failed! {}", err.to_string());
+                warn!("Password update SQL query failed! {}", err.to_string());
                 return Err("Password update SQL query failed!");
             }
         };
@@ -212,7 +212,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -228,7 +228,7 @@ impl User {
                 {
                     Ok(raw_row) => raw_row,
                     Err(err) => {
-                        error!("Email addition SQL query failed! {}", err.to_string());
+                        warn!("Email addition SQL query failed! {}", err.to_string());
                         return Err("Email addition SQL query failed!");
                     }
                 };
@@ -240,7 +240,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -256,7 +256,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!("Could not fetch user by email! {}", err.to_string());
+                warn!("Could not fetch user by email! {}", err.to_string());
                 return Err("Could not fetch user by email!");
             }
         };
@@ -273,7 +273,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -287,7 +287,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!("Email deletion SQL query failed! {}", err.to_string());
+                warn!("Email deletion SQL query failed! {}", err.to_string());
                 return Err("Email deletion SQL query failed!");
             }
         };
@@ -299,7 +299,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -316,7 +316,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!("Email update SQL query failed! {}", err.to_string());
+                warn!("Email update SQL query failed! {}", err.to_string());
                 return Err("Email update SQL query failed!");
             }
         };
@@ -332,7 +332,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -349,7 +349,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!(
+                warn!(
                     "Email verification status update SQL query failed! {}",
                     err.to_string()
                 );
@@ -364,7 +364,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -381,7 +381,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!("Could not fetch user by email! {}", err.to_string());
+                warn!("Could not fetch user by email! {}", err.to_string());
                 return false;
             }
         };
@@ -400,7 +400,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -434,7 +434,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -473,7 +473,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -489,7 +489,7 @@ impl User {
                 {
                     Ok(raw_row) => raw_row,
                     Err(err) => {
-                        error!("Ethereum address addition SQL query failed! {}", err.to_string());
+                        warn!("Ethereum address addition SQL query failed! {}", err.to_string());
                         return Err("Ethereum address addition SQL query failed!");
                     }
                 };
@@ -501,7 +501,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -517,7 +517,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!("Could not fetch user by Ethereum address! {}", err.to_string());
+                warn!("Could not fetch user by Ethereum address! {}", err.to_string());
                 return Err("Could not fetch user by Ethereum address!");
             }
         };
@@ -538,7 +538,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -552,7 +552,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!(
+                warn!(
                     "Ethereum address deletion SQL query failed! {}",
                     err.to_string()
                 );
@@ -571,7 +571,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -588,7 +588,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!("Ethereum address update SQL query failed! {}", err.to_string());
+                warn!("Ethereum address update SQL query failed! {}", err.to_string());
                 return Err("Ethereum address update SQL query failed!");
             }
         };
@@ -604,7 +604,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -621,7 +621,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!("Ethereum address verification status update SQL query failed! {}", err.to_string());
+                warn!("Ethereum address verification status update SQL query failed! {}", err.to_string());
                 return Err("Ethereum address verification status update SQL query failed!");
             }
         };
@@ -633,7 +633,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -650,7 +650,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!("Could not fetch user by Ethereum address! {}", err.to_string());
+                warn!("Could not fetch user by Ethereum address! {}", err.to_string());
                 return false;
             }
         };
@@ -669,7 +669,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -685,7 +685,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!("Could not fetch user by login token! {}", err.to_string());
+                warn!("Could not fetch user by login token! {}", err.to_string());
                 return Err("Could not fetch user by login token!");
             }
         };
@@ -706,7 +706,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -721,7 +721,7 @@ impl User {
                 {
                     Ok(raw_row) => raw_row,
                     Err(err) => {
-                        error!("Login token addition SQL query failed! {}", err.to_string());
+                        warn!("Login token addition SQL query failed! {}", err.to_string());
                         return Err("Login token addition SQL query failed!");
                     }
                 };
@@ -737,7 +737,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -751,7 +751,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!("Login token deletion SQL query failed! {}", err.to_string());
+                warn!("Login token deletion SQL query failed! {}", err.to_string());
                 return Err("Login token deletion SQL query failed!");
             }
         };
@@ -763,7 +763,7 @@ impl User {
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(err) => {
-                error!(
+                warn!(
                     "Could not acquire SQL connection from pool! {}",
                     err.to_string()
                 );
@@ -779,7 +779,7 @@ impl User {
         {
             Ok(raw_row) => raw_row,
             Err(err) => {
-                error!("Login token purge SQL query failed! {}", err.to_string());
+                warn!("Login token purge SQL query failed! {}", err.to_string());
                 return Err("Login token purge SQL query failed!");
             }
         };

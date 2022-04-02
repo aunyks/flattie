@@ -3,7 +3,7 @@ use crate::shared::{is_valid_email, is_valid_password, is_valid_username};
 use actix_web::http;
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
 use askama::Template;
-use log::{error, warn};
+use log::{info, error, warn};
 use serde::Deserialize;
 use sqlx::AnyPool;
 
@@ -113,7 +113,7 @@ pub async fn signup_user(
                 .add_login_token(login_token.clone(), &db_connection)
                 .await
             {
-                warn!(
+                error!(
                     "Could not create login token for {} during signup!\nError: {}",
                     &user, msg
                 );
@@ -124,6 +124,7 @@ pub async fn signup_user(
                     .content_type("text/html; charset=UTF-8")
                     .body(signup_html);
             }
+            info!("Created new user! {}", &user);
             HttpResponse::Found()
                 .header(
                     "Set-Cookie",
@@ -139,7 +140,7 @@ pub async fn signup_user(
                 .finish()
         }
         Err(msg) => {
-            warn!(
+            error!(
                 "Error occurred while creating a new user during signup:\n{}",
                 msg
             );
@@ -195,7 +196,7 @@ pub async fn login_user(
                             .add_login_token(login_token.clone(), &db_connection)
                             .await
                         {
-                            warn!(
+                            error!(
                                 "Could not create login token for {} during login!\nError: {}",
                                 &user, msg
                             );
@@ -206,6 +207,7 @@ pub async fn login_user(
                                 .content_type("text/html; charset=UTF-8")
                                 .body(login_html);
                         }
+                        info!("{} successfully logged in!", &user)
                         HttpResponse::Found()
                             .header(
                                 "Set-Cookie",
@@ -257,7 +259,7 @@ pub async fn login_user(
                                 .add_login_token(login_token.clone(), &db_connection)
                                 .await
                             {
-                                warn!(
+                                error!(
                                     "Could not create login token for {} during login!\nError: {}",
                                     &user, msg
                                 );
@@ -336,7 +338,7 @@ pub async fn logout_user(request: HttpRequest, db_connection: web::Data<AnyPool>
                         )
                         .finish(),
                     Err(msg) => {
-                        warn!("Could not delete login token of {}.\nError: {}", &user, msg);
+                        error!("Could not delete login token of {}.\nError: {}", &user, msg);
                         HttpResponse::InternalServerError().finish()
                     }
                 },
