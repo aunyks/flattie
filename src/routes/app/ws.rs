@@ -75,7 +75,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for EchoSocket {
                 match bin.as_ref() {
                     [0x55] => {
                         info!("0x55 was sent!");
-                        ctx.binary(Bytes::copy_from_slice(&[0x99]));
+                        ctx.binary(Bytes::copy_from_slice(&[0x7c]));
                     }
                     _ => {}
                 };
@@ -92,4 +92,133 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for EchoSocket {
 
 pub async fn echo_ws(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
     ws::start(EchoSocket::new(), &req, stream)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::test;
+    use actix_web::App;
+    use futures::{SinkExt, StreamExt};
+
+    #[actix_rt::test]
+    async fn test_echo_socket_text() {
+        let mut srv = test::start(|| {
+            App::new().service(web::resource("/").to(
+                |req: HttpRequest, stream: web::Payload| async move {
+                    ws::start(EchoSocket::new(), &req, stream)
+                },
+            ))
+        });
+
+        let mut ws_buffer = srv.ws().await.unwrap();
+
+        // Send text
+        ws_buffer
+            .send(ws::Message::Text("example text".to_string()))
+            .await
+            .unwrap();
+
+        // Make sure we get it back
+        let text_response = ws_buffer.next().await.unwrap().unwrap();
+        assert_eq!(
+            text_response,
+            ws::Frame::Text(Bytes::from_static(b"example text"))
+        );
+    }
+
+    #[actix_rt::test]
+    async fn test_echo_socket_ping() {
+        let mut srv = test::start(|| {
+            App::new().service(web::resource("/").to(
+                |req: HttpRequest, stream: web::Payload| async move {
+                    ws::start(EchoSocket::new(), &req, stream)
+                },
+            ))
+        });
+
+        let mut ws_buffer = srv.ws().await.unwrap();
+
+        // Send a ping
+        ws_buffer
+            .send(ws::Message::Ping(Bytes::from_static(b"")))
+            .await
+            .unwrap();
+
+        // Make sure we get a pong back
+        let ping_response = ws_buffer.next().await.unwrap().unwrap();
+        assert_eq!(ping_response, ws::Frame::Pong(Bytes::from_static(b"")));
+    }
+
+    #[actix_rt::test]
+    async fn test_echo_socket_pong() {
+        let mut srv = test::start(|| {
+            App::new().service(web::resource("/").to(
+                |req: HttpRequest, stream: web::Payload| async move {
+                    ws::start(EchoSocket::new(), &req, stream)
+                },
+            ))
+        });
+
+        let mut ws_buffer = srv.ws().await.unwrap();
+
+        // Send a pong
+        ws_buffer
+            .send(ws::Message::Pong(Bytes::from_static(b"")))
+            .await
+            .unwrap();
+
+        // Make sure we get a ping back
+        let pong_response = ws_buffer.next().await.unwrap().unwrap();
+        assert_eq!(pong_response, ws::Frame::Ping(Bytes::from_static(b"")));
+    }
+
+    #[actix_rt::test]
+    async fn test_echo_socket_generic_binary() {
+        let mut srv = test::start(|| {
+            App::new().service(web::resource("/").to(
+                |req: HttpRequest, stream: web::Payload| async move {
+                    ws::start(EchoSocket::new(), &req, stream)
+                },
+            ))
+        });
+
+        let mut ws_buffer = srv.ws().await.unwrap();
+
+        // Send generic bytes
+        ws_buffer
+            .send(ws::Message::Binary(Bytes::from_static(b"some bytes")))
+            .await
+            .unwrap();
+
+        // Make sure we get the same bytes back
+        let binary_response = ws_buffer.next().await.unwrap().unwrap();
+        assert_eq!(
+            binary_response,
+            ws::Frame::Binary(Bytes::from_static(b"some bytes"))
+        );
+    }
+
+    #[actix_rt::test]
+    async fn test_echo_socket_special_binary() {
+        let mut srv = test::start(|| {
+            App::new().service(web::resource("/").to(
+                |req: HttpRequest, stream: web::Payload| async move {
+                    ws::start(EchoSocket::new(), &req, stream)
+                },
+            ))
+        });
+
+        let mut ws_buffer = srv.ws().await.unwrap();
+
+        // Send the magic bytes
+        ws_buffer
+            .send(ws::Message::Binary(Bytes::from_static(b"U")))
+            .await
+            .unwrap();
+
+        // Make sure we get the special response back
+        let binary_response = ws_buffer.next().await.unwrap().unwrap();
+        assert_eq!(binary_response, ws::Frame::Binary(Bytes::from_static(b"|")));
+    }
 }
