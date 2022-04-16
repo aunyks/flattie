@@ -39,7 +39,7 @@ impl User {
         username: String,
         plaintext_password: Option<String>,
         conn_pool: &AnyPool,
-    ) -> Result<User, &str> {
+    ) -> Result<Self, &str> {
         trace!("User::create(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -103,7 +103,7 @@ impl User {
         }
     }
 
-    pub async fn with_username(username: String, conn_pool: &AnyPool) -> Result<User, &str> {
+    pub async fn with_username(username: String, conn_pool: &AnyPool) -> Result<Self, &str> {
         trace!("User::with_username(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -235,7 +235,7 @@ impl User {
         Ok(())
     }
 
-    pub async fn with_email(email: String, conn_pool: &AnyPool) -> Result<User, &str> {
+    pub async fn with_email(email: String, conn_pool: &AnyPool) -> Result<Self, &str> {
         trace!("User::with_email(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -496,7 +496,7 @@ impl User {
         Ok(())
     }
 
-    pub async fn with_eth_address(eth_address: String, conn_pool: &AnyPool) -> Result<User, &str> {
+    pub async fn with_eth_address(eth_address: String, conn_pool: &AnyPool) -> Result<Self, &str> {
         trace!("User::with_eth_address(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -664,7 +664,7 @@ impl User {
         }
     }
 
-    pub async fn with_login_token(login_token: String, conn_pool: &AnyPool) -> Result<User, &str> {
+    pub async fn with_login_token(login_token: String, conn_pool: &AnyPool) -> Result<Self, &str> {
         trace!("User::with_login_token(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
