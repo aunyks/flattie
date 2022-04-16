@@ -819,7 +819,7 @@ pub mod testing_helpers {
 }
 
 #[cfg(test)]
-pub mod tests {
+pub mod unit_tests {
     use super::testing_helpers::create_user_tables;
     use super::*;
     use crate::shared::testing_helpers::{create_test_sql_pool, get_sql_connection};

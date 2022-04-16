@@ -59,7 +59,7 @@ pub mod testing_helpers {
 }
 
 #[cfg(test)]
-mod tests {
+mod unit_tests {
     use super::*;
 
     #[test]

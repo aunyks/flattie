@@ -359,7 +359,7 @@ pub async fn logout_user(request: HttpRequest, db_connection: web::Data<AnyPool>
 }
 
 #[cfg(test)]
-mod tests {
+mod integration_tests {
     use super::*;
     use crate::models::testing_helpers::create_user_tables;
     use crate::shared::testing_helpers::create_test_sql_pool;

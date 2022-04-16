@@ -95,7 +95,7 @@ pub async fn echo_ws(req: HttpRequest, stream: web::Payload) -> Result<HttpRespo
 }
 
 #[cfg(test)]
-mod tests {
+mod unit_tests {
     use super::*;
     use actix_web::test;
     use actix_web::App;
