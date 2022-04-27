@@ -101,14 +101,14 @@ pub async fn signup_user(
     )
     .await
     {
-        Ok(user) => {
+        Ok(mut user) => {
             if let Err(msg) = user
                 .add_email(signup_details.email.clone(), false, &db_connection)
                 .await
             {
                 error!(
-                    "Could not add email for newly created user {}.\nError: {}",
-                    user, msg
+                    "Could not add email for newly created user.\nError: {}",
+                    msg
                 );
                 signup_error.error_message =
                     Some(String::from("Unknown error occurred. Please try again"));
@@ -123,8 +123,8 @@ pub async fn signup_user(
                 .await
             {
                 error!(
-                    "Could not create login token for {} during signup!\nError: {}",
-                    &user, msg
+                    "Could not create login token for user during signup!\nError: {}",
+                    msg
                 );
                 signup_error.error_message =
                     Some(String::from("Unknown error occurred. Please try again"));
@@ -198,7 +198,7 @@ pub async fn login_user(
             // Valid username
             match User::with_username(login_details.username_or_email.clone(), &db_connection).await
             {
-                Ok(user) => match user.has_password(login_details.password.clone()) {
+                Ok(mut user) => match user.has_password(login_details.password.clone()) {
                     true => {
                         let login_token = User::generate_login_token();
                         if let Err(msg) = user
@@ -206,8 +206,8 @@ pub async fn login_user(
                             .await
                         {
                             error!(
-                                "Could not create login token for {} during login!\nError: {}",
-                                &user, msg
+                                "Could not create login token for user during login!\nError: {}",
+                                msg
                             );
                             login_error.error_message =
                                 Some(String::from("Unknown error occurred. Please try again"));
@@ -261,7 +261,7 @@ pub async fn login_user(
                 match User::with_email(login_details.username_or_email.clone(), &db_connection)
                     .await
                 {
-                    Ok(user) => match user.has_password(login_details.password.clone()) {
+                    Ok(mut user) => match user.has_password(login_details.password.clone()) {
                         true => {
                             let login_token = User::generate_login_token();
                             if let Err(msg) = user
@@ -269,8 +269,8 @@ pub async fn login_user(
                                 .await
                             {
                                 error!(
-                                    "Could not create login token for {} during login!\nError: {}",
-                                    &user, msg
+                                    "Could not create login token for user during login!\nError: {}",
+                                    msg
                                 );
                                 login_error.error_message =
                                     Some(String::from("Unknown error occurred. Please try again"));
@@ -335,7 +335,7 @@ pub async fn logout_user(request: HttpRequest, db_connection: web::Data<AnyPool>
         Some(token_cookie) => {
             let login_token = String::from(token_cookie.value());
             match User::with_login_token(login_token.clone(), &db_connection).await {
-                Ok(user) => match user.delete_login_token(login_token, &db_connection).await {
+                Ok(mut user) => match user.delete_login_token(login_token, &db_connection).await {
                     Ok(_) => HttpResponse::Found()
                         .header(
                             http::header::LOCATION,
@@ -347,7 +347,7 @@ pub async fn logout_user(request: HttpRequest, db_connection: web::Data<AnyPool>
                         )
                         .finish(),
                     Err(msg) => {
-                        error!("Could not delete login token of {}.\nError: {}", &user, msg);
+                        error!("Could not delete login token of user.\nError: {}", msg);
                         HttpResponse::InternalServerError().finish()
                     }
                 },

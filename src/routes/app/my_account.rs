@@ -192,7 +192,7 @@ pub async fn add_email(
             .value(),
     );
     match User::with_login_token(login_token.clone(), &db_connection).await {
-        Ok(user) => {
+        Ok(mut user) => {
             if !user.has_password(add_email_details.password.clone()) {
                 warn!("{} used incorrect password while adding new email", user);
                 return HttpResponse::Found()
@@ -209,10 +209,7 @@ pub async fn add_email(
                 .add_email(add_email_details.new_email.clone(), false, &db_connection)
                 .await
             {
-                error!(
-                    "Error occurred while adding {} email.\nError: {}",
-                    user, msg
-                );
+                error!("Error occurred while adding user email.\nError: {}", msg);
             }
             HttpResponse::Found()
                 .header(http::header::LOCATION, "/app/my-account")
@@ -251,7 +248,7 @@ pub async fn remove_email(
             .value(),
     );
     match User::with_login_token(login_token.clone(), &db_connection).await {
-        Ok(user) => {
+        Ok(mut user) => {
             if !user.has_password(remove_email_details.password.clone()) {
                 warn!("{} used incorrect password while adding new email", user);
                 return HttpResponse::Found()
@@ -281,10 +278,7 @@ pub async fn remove_email(
                 .delete_email(remove_email_details.email.clone(), &db_connection)
                 .await
             {
-                error!(
-                    "Error occurred while removing {} email.\nError: {}",
-                    user, msg
-                );
+                error!("Error occurred while removing user email.\nError: {}", msg);
             }
             HttpResponse::Found()
                 .header(http::header::LOCATION, "/app/my-account")

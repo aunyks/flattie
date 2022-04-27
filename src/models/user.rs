@@ -203,7 +203,7 @@ impl User {
     }
 
     pub async fn add_email(
-        &self,
+        &mut self,
         email: String,
         is_verified: bool,
         conn_pool: &AnyPool,
@@ -268,7 +268,7 @@ impl User {
         })
     }
 
-    pub async fn delete_email(&self, email: String, conn_pool: &AnyPool) -> Result<(), &str> {
+    pub async fn delete_email(&mut self, email: String, conn_pool: &AnyPool) -> Result<(), &str> {
         trace!("User.delete_email(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -294,7 +294,7 @@ impl User {
         Ok(())
     }
 
-    pub async fn update_email(&self, email: String, conn_pool: &AnyPool) -> Result<(), &str> {
+    pub async fn update_email(&mut self, email: String, conn_pool: &AnyPool) -> Result<(), &str> {
         trace!("User.update_email(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -324,7 +324,7 @@ impl User {
     }
 
     pub async fn update_email_verification_status(
-        &self,
+        &mut self,
         is_verified: bool,
         conn_pool: &AnyPool,
     ) -> Result<(), &str> {
@@ -464,7 +464,7 @@ impl User {
     }
 
     pub async fn add_eth_address(
-        &self,
+        &mut self,
         eth_address: String,
         is_verified: bool,
         conn_pool: &AnyPool,
@@ -530,7 +530,7 @@ impl User {
     }
 
     pub async fn delete_eth_address(
-        &self,
+        &mut self,
         eth_address: String,
         conn_pool: &AnyPool,
     ) -> Result<(), &str> {
@@ -563,7 +563,7 @@ impl User {
     }
 
     pub async fn update_eth_address(
-        &self,
+        &mut self,
         eth_address: String,
         conn_pool: &AnyPool,
     ) -> Result<(), &str> {
@@ -596,7 +596,7 @@ impl User {
     }
 
     pub async fn update_eth_addr_verification_status(
-        &self,
+        &mut self,
         is_verified: bool,
         conn_pool: &AnyPool,
     ) -> Result<(), &str> {
@@ -698,7 +698,7 @@ impl User {
     }
 
     pub async fn add_login_token(
-        &self,
+        &mut self,
         login_token: String,
         conn_pool: &AnyPool,
     ) -> Result<(), &str> {
@@ -729,7 +729,7 @@ impl User {
     }
 
     pub async fn delete_login_token(
-        &self,
+        &mut self,
         login_token: String,
         conn_pool: &AnyPool,
     ) -> Result<(), &str> {
@@ -758,7 +758,7 @@ impl User {
         Ok(())
     }
 
-    pub async fn purge_login_tokens(&self, conn_pool: &AnyPool) -> Result<(), &str> {
+    pub async fn purge_login_tokens(&mut self, conn_pool: &AnyPool) -> Result<(), &str> {
         trace!("User.purge_login_tokens(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -1077,7 +1077,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
@@ -1124,7 +1124,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
@@ -1165,7 +1165,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
@@ -1211,7 +1211,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
@@ -1244,7 +1244,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
@@ -1279,7 +1279,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
@@ -1342,7 +1342,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
@@ -1395,7 +1395,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
@@ -1453,7 +1453,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
@@ -1494,7 +1494,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
@@ -1539,7 +1539,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
@@ -1586,7 +1586,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
@@ -1617,7 +1617,7 @@ pub mod unit_tests {
         create_user_tables(&test_pool).await;
 
         // Create the user using the model
-        let user = match User::create(
+        let mut user = match User::create(
             String::from("my_username"),
             Some(String::from("hunter2")),
             &test_pool,
