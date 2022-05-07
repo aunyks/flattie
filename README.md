@@ -42,6 +42,12 @@ cargo build --release
 
 Note that you can set the optimization levels for release builds with the `opt-level` value in `Cargo.toml`. More details can be found in [the Cargo reference](https://doc.rust-lang.org/cargo/reference/profiles.html#opt-level).
 
+## Debugging with Visual Studio Code
+
+To add breakpoints and pause and inspect execution using [VS Code](https://code.visualstudio.com/), you must have installed the [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb) extension and the [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=matklad.rust-analyzer) or [Rust](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust) extension (I prefer `rust-analyzer`).
+
+To debug the project, first build it with `cargo build` or the "Build Flattie" build task. Then, with your breakpoints already inserted, select from the navbar at the top of the screen: "Run" > "Start Debugging".
+
 ## Configuration
 
 By default, Flattie uses environment variables to control how it behaves. The variables it understands are:
