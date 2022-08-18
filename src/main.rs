@@ -4,7 +4,7 @@ use actix_web::{web, App, HttpServer};
 use env_logger::{Builder, Env};
 use log::{error, info, warn};
 use routes::{app, auth, marketing};
-use sqlx::any::AnyPoolOptions;
+use sqlx::postgres::PgPoolOptions;
 use std::{env, process::exit};
 mod constants;
 mod middleware;
@@ -32,7 +32,7 @@ async fn main() -> std::io::Result<()> {
         }
     };
 
-    let db_connection_pool = match AnyPoolOptions::new()
+    let db_connection_pool = match PgPoolOptions::new()
         .max_connections(5)
         .connect(&db_connection_url)
         .await

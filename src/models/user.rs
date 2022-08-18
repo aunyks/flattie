@@ -10,7 +10,7 @@ use base64::{encode_config, CharacterSet, Config};
 use futures::TryStreamExt;
 use log::{debug, trace, warn};
 use rand::{rngs::OsRng, RngCore};
-use sqlx::{AnyPool, Row};
+use sqlx::{PgPool, Row};
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct ExternalAsset {
@@ -38,7 +38,7 @@ impl User {
     pub async fn create(
         username: String,
         plaintext_password: Option<String>,
-        conn_pool: &AnyPool,
+        conn_pool: &PgPool,
     ) -> Result<Self, &str> {
         trace!("User::create(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
@@ -103,7 +103,7 @@ impl User {
         }
     }
 
-    pub async fn with_username(username: String, conn_pool: &AnyPool) -> Result<Self, &str> {
+    pub async fn with_username(username: String, conn_pool: &PgPool) -> Result<Self, &str> {
         trace!("User::with_username(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -161,7 +161,7 @@ impl User {
     pub async fn update_password(
         &mut self,
         plaintext_password: String,
-        conn_pool: &AnyPool,
+        conn_pool: &PgPool,
     ) -> Result<(), &str> {
         trace!("User.update_password(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
@@ -206,7 +206,7 @@ impl User {
         &mut self,
         email: String,
         is_verified: bool,
-        conn_pool: &AnyPool,
+        conn_pool: &PgPool,
     ) -> Result<(), &str> {
         trace!("User.add_email(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
@@ -235,7 +235,7 @@ impl User {
         Ok(())
     }
 
-    pub async fn with_email(email: String, conn_pool: &AnyPool) -> Result<Self, &str> {
+    pub async fn with_email(email: String, conn_pool: &PgPool) -> Result<Self, &str> {
         trace!("User::with_email(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -268,7 +268,7 @@ impl User {
         })
     }
 
-    pub async fn delete_email(&mut self, email: String, conn_pool: &AnyPool) -> Result<(), &str> {
+    pub async fn delete_email(&mut self, email: String, conn_pool: &PgPool) -> Result<(), &str> {
         trace!("User.delete_email(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -294,7 +294,7 @@ impl User {
         Ok(())
     }
 
-    pub async fn update_email(&mut self, email: String, conn_pool: &AnyPool) -> Result<(), &str> {
+    pub async fn update_email(&mut self, email: String, conn_pool: &PgPool) -> Result<(), &str> {
         trace!("User.update_email(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -326,7 +326,7 @@ impl User {
     pub async fn update_email_verification_status(
         &mut self,
         is_verified: bool,
-        conn_pool: &AnyPool,
+        conn_pool: &PgPool,
     ) -> Result<(), &str> {
         trace!("User.update_email_verification_status(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
@@ -359,7 +359,7 @@ impl User {
         Ok(())
     }
 
-    pub async fn has_verified_email(&self, email: String, conn_pool: &AnyPool) -> bool {
+    pub async fn has_verified_email(&self, email: String, conn_pool: &PgPool) -> bool {
         trace!("User.has_verified_email(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -395,7 +395,7 @@ impl User {
         }
     }
 
-    pub async fn emails(&self, conn_pool: &AnyPool) -> Result<Vec<ExternalAsset>, &str> {
+    pub async fn emails(&self, conn_pool: &PgPool) -> Result<Vec<ExternalAsset>, &str> {
         trace!("User.emails(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -429,7 +429,7 @@ impl User {
         Ok(emails)
     }
 
-    pub async fn eth_addresses(&self, conn_pool: &AnyPool) -> Result<Vec<ExternalAsset>, &str> {
+    pub async fn eth_addresses(&self, conn_pool: &PgPool) -> Result<Vec<ExternalAsset>, &str> {
         trace!("User.eth_addresses(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -467,7 +467,7 @@ impl User {
         &mut self,
         eth_address: String,
         is_verified: bool,
-        conn_pool: &AnyPool,
+        conn_pool: &PgPool,
     ) -> Result<(), &str> {
         trace!("User.add_eth_address(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
@@ -496,7 +496,7 @@ impl User {
         Ok(())
     }
 
-    pub async fn with_eth_address(eth_address: String, conn_pool: &AnyPool) -> Result<Self, &str> {
+    pub async fn with_eth_address(eth_address: String, conn_pool: &PgPool) -> Result<Self, &str> {
         trace!("User::with_eth_address(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -532,7 +532,7 @@ impl User {
     pub async fn delete_eth_address(
         &mut self,
         eth_address: String,
-        conn_pool: &AnyPool,
+        conn_pool: &PgPool,
     ) -> Result<(), &str> {
         trace!("User.delete_eth_address(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
@@ -565,7 +565,7 @@ impl User {
     pub async fn update_eth_address(
         &mut self,
         eth_address: String,
-        conn_pool: &AnyPool,
+        conn_pool: &PgPool,
     ) -> Result<(), &str> {
         trace!("User.update_eth_address(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
@@ -598,7 +598,7 @@ impl User {
     pub async fn update_eth_addr_verification_status(
         &mut self,
         is_verified: bool,
-        conn_pool: &AnyPool,
+        conn_pool: &PgPool,
     ) -> Result<(), &str> {
         trace!("User.update_eth_addr_verification_status(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
@@ -628,7 +628,7 @@ impl User {
         Ok(())
     }
 
-    pub async fn has_verified_eth_address(&self, eth_address: String, conn_pool: &AnyPool) -> bool {
+    pub async fn has_verified_eth_address(&self, eth_address: String, conn_pool: &PgPool) -> bool {
         trace!("User.has_verified_eth_address(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -664,7 +664,7 @@ impl User {
         }
     }
 
-    pub async fn with_login_token(login_token: String, conn_pool: &AnyPool) -> Result<Self, &str> {
+    pub async fn with_login_token(login_token: String, conn_pool: &PgPool) -> Result<Self, &str> {
         trace!("User::with_login_token(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -700,7 +700,7 @@ impl User {
     pub async fn add_login_token(
         &mut self,
         login_token: String,
-        conn_pool: &AnyPool,
+        conn_pool: &PgPool,
     ) -> Result<(), &str> {
         trace!("User.add_login_token(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
@@ -731,7 +731,7 @@ impl User {
     pub async fn delete_login_token(
         &mut self,
         login_token: String,
-        conn_pool: &AnyPool,
+        conn_pool: &PgPool,
     ) -> Result<(), &str> {
         trace!("User.delete_login_token(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
@@ -758,7 +758,7 @@ impl User {
         Ok(())
     }
 
-    pub async fn purge_login_tokens(&mut self, conn_pool: &AnyPool) -> Result<(), &str> {
+    pub async fn purge_login_tokens(&mut self, conn_pool: &PgPool) -> Result<(), &str> {
         trace!("User.purge_login_tokens(): Invoked");
         let mut sql_connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
@@ -796,9 +796,9 @@ impl User {
 
 #[cfg(test)]
 pub mod testing_helpers {
-    use sqlx::AnyPool;
+    use sqlx::PgPool;
 
-    pub async fn create_user_tables(conn_pool: &AnyPool) {
+    pub async fn create_user_tables(conn_pool: &PgPool) {
         let mut connection = match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(_) => {

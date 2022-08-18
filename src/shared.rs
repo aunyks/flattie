@@ -31,12 +31,12 @@ pub fn is_valid_password(plaintext_password: &String) -> bool {
 
 #[cfg(test)]
 pub mod testing_helpers {
-    use sqlx::any::AnyPoolOptions;
     use sqlx::pool::PoolConnection;
-    use sqlx::AnyPool;
+    use sqlx::postgres::PgPoolOptions;
+    use sqlx::PgPool;
 
-    pub async fn create_test_sql_pool() -> AnyPool {
-        match AnyPoolOptions::new()
+    pub async fn create_test_sql_pool() -> PgPool {
+        match PgPoolOptions::new()
             .max_connections(1)
             .connect("sqlite::memory:")
             .await
@@ -48,7 +48,7 @@ pub mod testing_helpers {
         }
     }
 
-    pub async fn get_sql_connection(conn_pool: &AnyPool) -> PoolConnection<sqlx::Any> {
+    pub async fn get_sql_connection(conn_pool: &PgPool) -> PoolConnection<sqlx::Pg> {
         match conn_pool.acquire().await {
             Ok(conn) => conn,
             Err(_) => {

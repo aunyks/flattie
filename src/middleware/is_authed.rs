@@ -3,7 +3,7 @@ use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::http;
 use actix_web::{Error, HttpMessage, HttpResponse};
 use futures::future::{ok, FutureExt, LocalBoxFuture, Ready};
-use sqlx::AnyPool;
+use sqlx::PgPool;
 use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -51,7 +51,7 @@ where
     }
 
     fn call(&mut self, req: ServiceRequest) -> Self::Future {
-        let db_connection = match req.app_data::<actix_web::web::Data<AnyPool>>() {
+        let db_connection = match req.app_data::<actix_web::web::Data<PgPool>>() {
             Some(db_conn) => db_conn,
             None => {
                 return async move {

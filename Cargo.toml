@@ -45,7 +45,7 @@ askama = "0.10.5"
 # Not using latest because of this: https://github.com/launchbadge/sqlx/issues/1117#issuecomment-801237734, 
 # same with actix-rt
 # https://github.com/launchbadge/sqlx
-sqlx = { version = "0.4.2", features = ["runtime-actix-rustls", "any", "sqlite", "postgres", "mysql" ] }
+sqlx = { version = "0.4.2", features = ["runtime-tokio-rustls", "postgres" ] }
 
 # Trait: https://github.com/RustCrypto/traits/tree/master/password-hash
 # Crate Family: https://github.com/RustCrypto/password-hashes

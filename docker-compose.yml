@@ -1,0 +1,27 @@
+# This is used for testing purposes only.
+version: '3.7'
+services:
+  database:
+    image: 'postgres:14.5-alpine'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # To connect from host:
+    # psql -h 127.0.0.1 -U username -d database
+    # or
+    # PGPASSWORD=password psql -h 127.0.0.1 -U username -d database
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: database
+  smtp_server:
+    image: mailhog/mailhog:v1.0.1
+    restart: always
+    # https://github.com/mailhog/MailHog/blob/master/docs/CONFIG.md
+    ports:
+      - 1025:1025
+      - 8025:8025

@@ -6,7 +6,7 @@ use actix_web::{cookie::Cookie, web, HttpMessage, HttpRequest, HttpResponse};
 use askama::Template;
 use log::{error, warn};
 use serde::Deserialize;
-use sqlx::AnyPool;
+use sqlx::PgPool;
 
 #[derive(Template)]
 #[template(path = "myaccount.html")]
@@ -19,7 +19,7 @@ struct MyAccountPage {
 
 pub async fn myaccount_page(
     request: HttpRequest,
-    db_connection: web::Data<AnyPool>,
+    db_connection: web::Data<PgPool>,
 ) -> HttpResponse {
     let login_token = String::from(
         request
@@ -74,7 +74,7 @@ pub struct ChangePassword {
 
 pub async fn change_password(
     request: HttpRequest,
-    db_connection: web::Data<AnyPool>,
+    db_connection: web::Data<PgPool>,
     ch_pass_details: web::Form<ChangePassword>,
 ) -> HttpResponse {
     let login_token = String::from(
@@ -182,7 +182,7 @@ pub struct AddEmail {
 
 pub async fn add_email(
     request: HttpRequest,
-    db_connection: web::Data<AnyPool>,
+    db_connection: web::Data<PgPool>,
     add_email_details: web::Form<AddEmail>,
 ) -> HttpResponse {
     let login_token = String::from(
@@ -238,7 +238,7 @@ pub struct RemoveEmail {
 
 pub async fn remove_email(
     request: HttpRequest,
-    db_connection: web::Data<AnyPool>,
+    db_connection: web::Data<PgPool>,
     remove_email_details: web::Form<RemoveEmail>,
 ) -> HttpResponse {
     let login_token = String::from(

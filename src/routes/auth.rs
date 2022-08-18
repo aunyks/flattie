@@ -5,7 +5,7 @@ use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
 use askama::Template;
 use log::{error, info, warn};
 use serde::Deserialize;
-use sqlx::AnyPool;
+use sqlx::PgPool;
 
 #[derive(Template)]
 #[template(path = "signup.html")]
@@ -34,7 +34,7 @@ pub struct SignupDetails {
 
 pub async fn signup_user(
     signup_details: web::Form<SignupDetails>,
-    db_connection: web::Data<AnyPool>,
+    db_connection: web::Data<PgPool>,
 ) -> HttpResponse {
     let mut signup_error = Signup {
         error_message: None,
@@ -188,7 +188,7 @@ pub struct LoginDetails {
 
 pub async fn login_user(
     login_details: web::Form<LoginDetails>,
-    db_connection: web::Data<AnyPool>,
+    db_connection: web::Data<PgPool>,
 ) -> HttpResponse {
     let mut login_error = Login {
         error_message: None,
@@ -330,7 +330,7 @@ pub async fn login_user(
     }
 }
 
-pub async fn logout_user(request: HttpRequest, db_connection: web::Data<AnyPool>) -> HttpResponse {
+pub async fn logout_user(request: HttpRequest, db_connection: web::Data<PgPool>) -> HttpResponse {
     match request.cookie("login_token") {
         Some(token_cookie) => {
             let login_token = String::from(token_cookie.value());
